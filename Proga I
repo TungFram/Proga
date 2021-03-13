@@ -1,0 +1,499 @@
+#include <iostream>
+#include <cmath>
+#include <cassert>
+#include <utility>
+#include <vector>
+
+using namespace std;
+/*for (int i = 0; i < quatity; i++)
+{
+    points_[i].CPoint::SetPoint();
+}*/
+//мы длжны постоянно помнить, что надо сохранять инвариантность, следовательно не надо создавать плохие объекты
+//еще надо допилить универсальные конструкторы
+//и сделать проверки в собственных конструкторах
+
+class CFigure {
+protected:
+    vector <CPoint> points_;
+    vector <CPoint> sides_;
+public:
+    CPoint Get_point(int i) { return points_[i]; }
+    CPoint Get_side(int i) { return sides_[i]; }
+    int const Get_quantity() { return points_.size(); }
+    CFigure(int i)
+    {
+        int x, y;
+        int quantity;
+        cout << "Quantity of point: ";
+        cin >> quatity;
+
+    }
+
+    istream& operator>> (istream& is ) {
+        int x, y;
+        
+        if (is >> x >> y) {
+            CFigure figure;
+            CPoint::Set_XY(x, y);
+            rhs.setSomeMoreData(smd);
+        }
+        return is;
+    }
+    bool Check_for_cycle() = 0;
+    bool Check_for_convexity() = 0;
+
+
+};
+class CPoint // точка
+{
+private:
+    int X_ = 0;
+    int Y_ = 0;
+public:
+    int X, Y;
+    CPoint(int x, int y) // обычный конструктор
+    {
+        Set_XY(x, y);
+    }
+    CPoint(int x) : X_(x), Y_(0) {}
+    CPoint() : X_(0), Y_(0) {}
+
+    CPoint(const CPoint& another) : // конструктор копирования
+        X_(another.X_), Y_(another.Y_)
+    {}
+    CPoint(CPoint&& another) noexcept : // конструктор перемещения
+        X_(exchange(another.X_, 0)), Y_(exchange(another.Y_, 0))
+    {}
+
+    void SetPoint() // Set
+    {
+        cout << "point: ";
+        int x, y;
+        cin >> x >> y;
+        Set_XY(x, y);
+    }
+
+    int Get_X() { return X_; }
+    int Get_Y() { return Y_; }
+    void Set_XY(int x, int y)
+    {
+        X_ = x;
+        Y_ = y;
+    }
+
+
+    void GetPoint() // Get
+    {
+        cout << "Point (" << X_ << ";" << Y_ << ")" << endl;
+    }
+
+    CPoint& operator= (const CPoint& another) // оператор =
+    {
+        if (&another == this)
+            return *this;
+
+        X_ = another.X_;
+        Y_ = another.Y_;
+
+        return *this;
+    }
+
+    bool operator== (const CPoint& another)
+    {
+        if (&another == this)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    ~CPoint()
+    {}
+};
+
+class CPolyLine : public CPoint // ломаная
+{
+private:
+    double P_ = 0;
+    int quantity_;
+    vector<CPoint> array_;
+public:
+    int X1 = 0, X2 = 0, Y1 = 0, Y2 = 0;
+
+    CPolyLine()
+    {
+        SetPolyLine();
+    }
+
+    void SetPolyLine()
+    {
+        int quantity;
+        cout << "quantity of points: ";
+        cin >> quantity;
+        assert(quantity > 0);
+        quantity_ = quantity;
+        array_.resize(quantity_);
+        for (int i = 0; i < quantity_; i++)
+        {
+            array_.at(i).SetPoint();
+        }
+    }
+
+    void GetPolyLine()
+    {
+        for (int i = 0; i < quantity_; i++)
+            array_.at(i).GetPoint();
+    }
+    int GetQuantity() { return quantity_; }
+    vector<CPoint> GetVector() { return array_; }
+
+
+    void Find_P()
+    {
+        for (int i = 0; i < quantity_ - 1; i++)
+        {
+            X1 = array_.at(i).Get_X();     Y1 = array_.at(i).Get_Y();
+            X2 = array_.at(i + 1).Get_X(); Y2 = array_.at(i + 1).Get_Y();
+            P_ += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+        }
+        cout << "P = " << P_ << endl;
+    }
+    ~CPolyLine()
+    {
+        array_.clear();
+    }
+};
+class Ccycle_polyline : public CPolyLine // замкнутая ломаная
+{
+private:
+    bool status_;
+    double S_;
+public:
+    vector<CPoint> help = GetVector();
+    int quantity = GetQuantity();
+
+    Ccycle_polyline()
+    {
+    }
+
+    ~Ccycle_polyline()
+    {
+        help.clear();
+    }
+};
+class Cpolygon : public Ccycle_polyline // многоугольник выпуклый
+{
+private:
+    bool convexity_ = false;
+public:
+    vector<CPoint> help_side = help;
+
+    Cpolygon()
+    {
+        Check_for_convexity();
+    }
+
+    void Check_for_convexity()
+    {
+
+
+        float help_turn = 0;
+        int count = 0 - quantity;
+        for (int i = 0; i < quantity - 1; i++)
+        {
+            X1 = help.at(i).Get_X();      Y1 = help.at(i).Get_Y();      //мы берем точки у точек
+            X2 = help.at(i + 1).Get_X();  Y2 = help.at(i + 1).Get_Y();
+            X = X2 - X1; Y = Y2 - Y1; //считаем координаты у ребра
+            help_side.at(i).Set_XY(X, Y); //кладем координаты ребер как координаты точек в вспомогательный массив
+        }
+        X1 = help.at(quantity - 1).Get_X();      Y1 = help.at(quantity - 1).Get_Y(); //тут мы делаем то же самое, просто последний раз, вручную, ибо иначе мы бы вышли за пределы
+        X2 = help.at(0).Get_X();  Y2 = help.at(0).Get_Y();
+        X = X2 - X1; Y = Y2 - Y1;
+        help_side.at(quantity).Set_XY(X, Y); //ребра запонены
+
+        for (int i = 0; i < quantity - 1; i++) //проверяем выпуклость с помощью поворотов
+        {
+            X1 = help_side.at(i).Get_X();      Y1 = help_side.at(i).Get_Y();      //мы берем точки уже у ребер
+            X2 = help_side.at(i + 1).Get_X();  Y2 = help_side.at(i + 1).Get_Y();
+            help_turn = (X1 * Y2 - Y1 * X2); //формула поворота, >0, когда поворот налево; <0 - направо; =0 - коллинеарны
+            if ((help_turn < 0) || (help_turn = 0))
+            {
+                count++; //будем по умолчанию обходить слева, таким образом если все ок, то в конце quantity = 0, а иначе все плохо
+            }
+        }
+        if (count < 0)
+        {
+            convexity_ = false;
+            cout << "Sorry, but it's not a convexity polygon" << endl;
+        }
+        else
+        {
+            convexity_ = true;
+            cout << "All is clear, convexity is OK)" << endl;
+        }
+        assert(convexity_ = true);
+    }
+    ~Cpolygon()
+    {
+        help_side.clear();
+        help.clear();
+    }
+};
+class Ctriangle : public CPoint// треугольник
+{
+private:
+    double S_;
+    double P_;
+    vector<CPoint> points_;
+    vector<double> sides_;
+    bool Real_triangle;
+    //bool Check_for_90;
+public:
+    int X1 = 0, X2 = 0, Y1 = 0, Y2 = 0;
+
+    Ctriangle()
+    {
+        points_.reserve(3);
+        sides_.reserve(3);
+        for (int i = 0; i < 3; i++)
+        {
+            points_.at(i).SetPoint();
+        }
+    }
+
+    void SetTriangle()
+    {
+        points_.resize(3);
+        sides_.reserve(3);
+        for (int i = 0; i < 3; i++)
+        {
+            points_.at(i).SetPoint();
+        }
+    }
+
+    void GetTriangle()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            points_.at(i).GetPoint();
+        }
+    }
+    double Get_S() { return S_; }
+    double Get_P() { return P_; }
+
+    void Find_P()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y();
+            P_ += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+            sides_.at(i) = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+        }
+        cout << "P = " << P_ << endl;
+    }
+    void Find_S()
+    {
+        double s1 = 0, s2 = 0;
+        for (int i = 0; i < 2; i++)
+        {
+            X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
+            s1 += X1 * Y2;
+            s2 += Y1 * X2;
+        }
+        S_ = ((s1 - s2) / 2);
+        cout << "S = " << S_ << endl;
+    }
+    void Check_for_real_triangle() //каждая из сторон треугольника должна быть меньше, чем сумма двух других
+    {
+
+        if ((sides_.at(0) < (sides_.at(1) + sides_.at(2))) || (sides_.at(1) < (sides_.at(0) + sides_.at(2))) || (sides_.at(2) < (sides_.at(0) + sides_.at(1))))
+        {
+            Real_triangle = true;
+            cout << "Yes, it's real triangle!" << endl;
+        }
+        else
+        {
+            Real_triangle = false;
+            cout << "Oh, this is not Iluminat(" << endl;
+            assert(Real_triangle = true);
+        }
+
+    }
+    ~Ctriangle()
+    {
+        sides_.clear();
+        points_.clear();
+    }
+};
+class Cparallelogram : public Cpolygon
+{
+
+};
+class Ctrapezoid : public CPoint // трапеция
+{
+private:
+    double P_;
+    double S_;
+    vector<CPoint> points_;
+    vector<double> sides_;
+public:
+
+    int X1 = 0, X2 = 0, Y1 = 0, Y2 = 0;
+
+    Ctrapezoid()
+    {
+        points_.reserve(4);
+        sides_.reserve(4);
+        for (int i = 0; i < 4; i++)
+        {
+            points_.at(i).SetPoint();
+        }
+    }
+
+    void SetTrapezoid()
+    {
+        points_.resize(4);
+        sides_.reserve(4);
+        for (int i = 0; i < 4; i++)
+        {
+            points_.at(i).SetPoint();
+        }
+    }
+
+    void GetTrapezoid()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            points_.at(i).GetPoint();
+        }
+    }
+    double Get_S() { return S_; }
+    double Get_P() { return P_; }
+
+    void Find_P()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y(); /// нужна проверка на выпуклость и проверка на параллельность (можно еще и на 90)
+            P_ += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+            sides_.at(i) = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+        }
+        cout << "P = " << P_ << endl;
+    }
+    void Find_S()
+    {
+        double s1 = 0, s2 = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
+            s1 += X1 * Y2;
+            s2 += Y1 * X2;
+        }
+        S_ = ((s1 - s2) / 2);
+        cout << "S = " << S_ << endl;
+    }
+    ~Ctrapezoid()
+    {
+        points_.clear();
+        sides_.clear();
+    }
+};
+class Cclear_polygon : public Cpolygon // правильный многоугольник
+{
+private:
+    bool ideal_ = true;
+    double R_;
+    double r_;
+public:
+    void Check_for_ideal()
+    {
+        for (int i = 0; i < quantity - 1; i++)
+        {
+            if (!(help_side.at(i) == help_side.at(i + 1)))
+            {
+                ideal_ = false;
+                cout << "Sorry, but this polygon isn't clear..." << endl;
+                assert(ideal_ = false);
+            }
+        }
+    }
+
+    void Find_r()
+    {
+        X = help_side.at(0).Get_X(); Y = help_side.at(0).Get_Y();
+        r_ = ************************************************************************************
+    }
+};
+class CSquare : public Cclear_polygon
+{
+
+};
+
+
+double Find_P(CFigure figure)
+{
+    int X1, X2, Y1, Y2;
+    double P;
+    for (int i = 0; i < figure.Get_quantity() - 1; i++)
+    {
+        X1 = figure.Get_point(i).Get_X();     Y1 = figure.Get_point(i).Get_Y();
+        X2 = figure.Get_point(i + 1).Get_X(); Y2 = figure.Get_point(i + 1).Get_Y();
+        P += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+    }
+    return P;
+}
+
+
+int main()
+{
+    cout << "CPoint" << endl;
+    CPoint point;
+
+    cout << endl;
+
+    cout << "CPolyLine" << endl;
+    CPolyLine lieine;
+
+    cout << endl;
+
+
+    cout << "Ccycle_polyline" << endl;
+    Ccycle_polyline lieil;
+
+    cout << endl;
+
+
+    cout << "Cpolygon" << endl;
+    Cpolygon ABCDEF;
+
+    cout << endl;
+
+
+    cout << "Ctriangle" << endl;
+    Ctriangle ABC;
+
+    cout << endl;
+
+
+    cout << "Ctrapezoid" << endl;
+    Ctrapezoid ABCD;
+
+    cout << endl;
+
+
+    cout << "Cclear_polygon" << endl;
+    Cclear_polygon clear_ABCDEF;
+
+    cout << endl;
+
+
+
+    return 0;
+}
