@@ -12,6 +12,10 @@ using namespace std;
 //еще надо допилить универсальные конструкторы
 //и сделать проверки в собственных конструкторах
 
+//а еще надо бы сделать 9) Создать еще что-будь 
+//и в начале выбор на 1) создать  2) посмотреть на чадо
+
+
 class CStorage
 {
 public:
@@ -35,19 +39,21 @@ public:
     CPoint Get_point(int i) { return points_[i]; }
     CPoint Get_side(int i) { return sides_[i]; }
     int Get_size() { return sides_.size(); }
-    CFigure(int i)
+    CFigure(int quantity)
     {
-        int quatity, x, y;
-        cout << "Quantity of point: ";//////////////////////////////////////////////////////////////////////////////////////////////////////
-        cin >> quatity;
+        points_.resize(quantity);
+        for (int i = 0; i < quantity; i++)
+        {
+            points_.at(i).SetPoint();
+        }
         
     }
     bool Check_for_cycle()
     {
 
-        if (Get_point(0) == Get_point(Get_size() - 1))
+        if( (Get_point(0).Get_X() == Get_point(Get_size() - 1).Get_X()) && (Get_point(0).Get_Y() == Get_point(Get_size() - 1).Get_Y()) )
         {
-            cout << "Yea! This polyline is cycle! Allright!" << endl;//////////////////////////////////////////////////////////////
+            cout << "Yea! This polyline is cycle! Allright!" << endl;
             return true;
         }
         else
@@ -57,7 +63,58 @@ public:
         }
 
     }
-    bool Check_for_convexity() = 0;//////////////////////////////////////////////////////////////////////////////////////////////////////
+    bool Check_for_convexity()
+    {
+        try
+        {
+            if (!(Check_for_cycle()))
+            {
+                throw "Sorry, but this polyline not cycle!";
+            }
+        }
+        catch (char* str)
+        {
+            cout << str << endl;
+            return false;
+        }
+        int X1, X2, Y1, Y2, X, Y;
+
+        int help_turn = 0;
+        int count = 0 - sides_.size();
+        for (int i = 0; i < sides_.size() - 1; i++)
+        {
+            X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();      //мы берем координаты у точек
+            X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
+            X = X2 - X1; Y = Y2 - Y1; //считаем координаты у ребра
+            sides_.at(i).Set_XY(X, Y); //кладем координаты ребер как координаты точек в вспомогательный массив
+        }
+        X1 = points_.at(sides_.size() - 1).Get_X();      Y1 = points_.at(sides_.size() - 1).Get_Y(); //тут мы делаем то же самое, просто последний раз, вручную, ибо иначе мы бы вышли за пределы
+        X2 = points_.at(0).Get_X();                      Y2 = points_.at(0).Get_Y();
+        X = X2 - X1; Y = Y2 - Y1;
+        sides_.at(sides_.size()).Set_XY(X, Y); //ребра запонены
+
+        for (int i = 0; i < Get_size() - 1; i++) //проверяем выпуклость с помощью поворотов
+        {
+            X1 = sides_.at(i).Get_X();      Y1 = sides_.at(i).Get_Y();      //мы берем точки уже у ребер
+            X2 = sides_.at(i + 1).Get_X();  Y2 = sides_.at(i + 1).Get_Y();
+            help_turn = (X1 * Y2 - Y1 * X2); //формула поворота, >0, когда поворот налево; <0 - направо; =0 - коллинеарны
+            if (help_turn < 0)
+            {
+                count++; //будем по умолчанию обходить слева, таким образом если все ок, то в конце quantity = 0, а иначе все плохо
+            }
+        }
+
+        if (count < 0)
+        {
+            cout << "Sorry, but it's not a convexity polygon" << endl;
+            return false;
+        }
+        else
+        {
+            cout << "All is clear, convexity is OK)" << endl;
+            return true;
+        }
+    }
 
 };
 class CPoint // точка
@@ -161,25 +218,16 @@ public:
         }
     }
 
+    for (int i = 0; i < quatity; i++)
+        points_[i].CPoint::SetPoint();
     void GetPolyLine()
     {
         for (int i = 0; i < points_.size(); i++)
             points_.at(i).GetPoint();
     }
-    int GetQuantity() { return points_.size(); }
-    vector<CPoint> GetVector() { return points_; }
 
 
-    void Find_P()
-    {
-        for (int i = 0; i < points_.size() - 1; i++)
-        {
-            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
-            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y();
-            P_ += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
-        }
-        cout << "P = " << P_ << endl;
-    }
+   
     ~CPolyLine()
     {
         points_.clear();
