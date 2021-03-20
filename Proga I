@@ -1,48 +1,63 @@
-#include <iostream>
-#include <cmath>
-#include <cassert>
-#include <utility>
+#include <iostream> // and system("pause")
+#include <cmath> //математика
+#include <cassert> //для дропа, если что
+#include <utility> //для exchange
 #include <vector>
-
+//#include <windows.h>
+#include <locale>
 using namespace std;
-/*for (int i = 0; i < quatity; i++)
-{
-    points_[i].CPoint::SetPoint();
-}*/
+
+
 //мы длжны постоянно помнить, что надо сохранять инвариантность, следовательно не надо создавать плохие объекты
 //еще надо допилить универсальные конструкторы
 //и сделать проверки в собственных конструкторах
 
+class CStorage
+{
+public:
+    vector <CPoint> VPoints;
+    vector <CFigure> VFigures;
+    vector <CPolyLine> VPolylines;
+    vector <Ccycle_polyline> VCycle_polylines;
+    vector <Cpolygon> VPolygones;
+    vector <Ctriangle> VTriangles;
+    vector <Cparallelogram> Vparallelogrames;
+    vector <Ctrapezoid> VTrapezoids;
+    vector <Cclear_polygon> VClear_polygones;
+    vector <CRhombus> VRhombuses;
+};
+
 class CFigure {
-protected:
+private:
     vector <CPoint> points_;
     vector <CPoint> sides_;
-public:
+public: 
     CPoint Get_point(int i) { return points_[i]; }
     CPoint Get_side(int i) { return sides_[i]; }
-    int const Get_quantity() { return points_.size(); }
+    int Get_size() { return sides_.size(); }
     CFigure(int i)
     {
-        int x, y;
-        int quantity;
-        cout << "Quantity of point: ";
+        int quatity, x, y;
+        cout << "Quantity of point: ";//////////////////////////////////////////////////////////////////////////////////////////////////////
         cin >> quatity;
-
-    }
-
-    istream& operator>> (istream& is ) {
-        int x, y;
         
-        if (is >> x >> y) {
-            CFigure figure;
-            CPoint::Set_XY(x, y);
-            rhs.setSomeMoreData(smd);
-        }
-        return is;
     }
-    bool Check_for_cycle() = 0;
-    bool Check_for_convexity() = 0;
+    bool Check_for_cycle()
+    {
 
+        if (Get_point(0) == Get_point(Get_size() - 1))
+        {
+            cout << "Yea! This polyline is cycle! Allright!" << endl;//////////////////////////////////////////////////////////////
+            return true;
+        }
+        else
+        {
+            cout << "Sorry, but this polyline not cycle" << endl;
+            return false;
+        }
+
+    }
+    bool Check_for_convexity() = 0;//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 };
 class CPoint // точка
@@ -52,10 +67,7 @@ private:
     int Y_ = 0;
 public:
     int X, Y;
-    CPoint(int x, int y) // обычный конструктор
-    {
-        Set_XY(x, y);
-    }
+    CPoint(int x, int y) { Set_XY(x, y); }// обычный конструктор
     CPoint(int x) : X_(x), Y_(0) {}
     CPoint() : X_(0), Y_(0) {}
 
@@ -68,9 +80,10 @@ public:
 
     void SetPoint() // Set
     {
-        cout << "point: ";
         int x, y;
-        cin >> x >> y;
+        cout << "Point ("; cin >> x;
+        cout << ";"; cin >> y;
+        cout << ")" << endl;
         Set_XY(x, y);
     }
 
@@ -99,9 +112,10 @@ public:
         return *this;
     }
 
-    bool operator== (const CPoint& another)
+    friend bool operator== (const CPoint& another , const CPoint& that)//////////////////////////////////////////////////////////////////////////////////////////////////////
     {
-        if (&another == this)
+        if ((&another.X_ == this) &&
+            (&another.Y_ == this))
         {
             return true;
         }
@@ -110,62 +124,68 @@ public:
             return false;
         }
     }
+
+    /*
+    istream& operator>> (istream& indata)
+    {
+        int x, y;
+        cout << "("; indata >> X_;
+        cout << ";"; indata >> Y_;
+        cout << ")" << endl;
+        return indata;
+    }
+    */
     ~CPoint()
     {}
 };
 
-class CPolyLine : public CPoint // ломаная
+class CPolyLine : public CFigure // ломаная
 {
 private:
     double P_ = 0;
-    int quantity_;
-    vector<CPoint> array_;
+    vector<CPoint> points_;
 public:
     int X1 = 0, X2 = 0, Y1 = 0, Y2 = 0;
 
-    CPolyLine()
+    CPolyLine(int quantity)
     {
-        SetPolyLine();
+        SetPolyLine(quantity);
     }
 
-    void SetPolyLine()
+    void SetPolyLine(int quantity)
     {
-        int quantity;
-        cout << "quantity of points: ";
-        cin >> quantity;
-        assert(quantity > 0);
-        quantity_ = quantity;
-        array_.resize(quantity_);
-        for (int i = 0; i < quantity_; i++)
+        points_.resize(quantity);
+        for (int i = 0; i < quantity; i++)
         {
-            array_.at(i).SetPoint();
+            points_.at(i).SetPoint();
         }
     }
 
     void GetPolyLine()
     {
-        for (int i = 0; i < quantity_; i++)
-            array_.at(i).GetPoint();
+        for (int i = 0; i < points_.size(); i++)
+            points_.at(i).GetPoint();
     }
-    int GetQuantity() { return quantity_; }
-    vector<CPoint> GetVector() { return array_; }
+    int GetQuantity() { return points_.size(); }
+    vector<CPoint> GetVector() { return points_; }
 
 
     void Find_P()
     {
-        for (int i = 0; i < quantity_ - 1; i++)
+        for (int i = 0; i < points_.size() - 1; i++)
         {
-            X1 = array_.at(i).Get_X();     Y1 = array_.at(i).Get_Y();
-            X2 = array_.at(i + 1).Get_X(); Y2 = array_.at(i + 1).Get_Y();
+            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y();
             P_ += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
         }
         cout << "P = " << P_ << endl;
     }
     ~CPolyLine()
     {
-        array_.clear();
+        points_.clear();
     }
 };
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Ccycle_polyline : public CPolyLine // замкнутая ломаная
 {
 private:
@@ -184,6 +204,7 @@ public:
         help.clear();
     }
 };
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Cpolygon : public Ccycle_polyline // многоугольник выпуклый
 {
 private:
@@ -242,7 +263,8 @@ public:
         help.clear();
     }
 };
-class Ctriangle : public CPoint// треугольник
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Ctriangle : public Cpolygon// треугольник
 {
 private:
     double S_;
@@ -330,11 +352,8 @@ public:
         points_.clear();
     }
 };
-class Cparallelogram : public Cpolygon
-{
-
-};
-class Ctrapezoid : public CPoint // трапеция
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Ctrapezoid : public CFigure // трапеция
 {
 private:
     double P_;
@@ -405,6 +424,7 @@ public:
         sides_.clear();
     }
 };
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Cclear_polygon : public Cpolygon // правильный многоугольник
 {
 private:
@@ -431,17 +451,340 @@ public:
         r_ = ************************************************************************************
     }
 };
-class CSquare : public Cclear_polygon
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Cparallelogram : public Cpolygon
 {
 
 };
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+class CRhombus : public Cparallelogram
+{
+
+};
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+double Find_P(CFigure figure);
+
+int AskForCreate()
+{
+    int quantity;
+
+    cout << endl << "Пожалуйста, введите количество точек, из которых хотите сотворить нечто (оно не оживет) : ";
+    cin >> quantity;
+
+    if (quantity < 0)
+    {
+        cout << "Ну, тут наши полномочия всё, окончены..." << endl;
+        return -1;
+    }
+    else if (quantity == 0)
+    {
+        cout << "Поздравляем! Вы сделали абсолютно ничего, это успех! Вы прогрессируете!" << endl;
+        return 0;
+    }
+
+    cout << "из " << quantity << "точек вы можете сотворить: " << endl << "0) Ничего не хочу." << endl;;
+    if (quantity == 1) cout << "1) Точку. Просто одинокую точку...   хнык(   " << endl;
+    else if (quantity > 1)  cout << "1) Ломаную.";                                                                                              //если захотим 2(или более) отдельных точки, то дульки с маком
+    else if (quantity > 3)  cout << "2) Замкнутую ломаную." << endl << "3) Многоугольник." << endl << "4) Правильный многоугольник." << endl;
+    switch (quantity)
+    {
+    case 3:
+    {
+        cout << "2)               Илюминатиии" << endl << "3)  Идельного илюминатии" << endl;
+    }
+    case 4:
+        cout << "5) Трапецию." << endl << "6) Параллелограмм (может скоро)." << endl << "7) Ромб (может скоро)." << endl;
+    }
+    cout << endl << "Итак, что же вы хотите?" << endl;
+    return quantity;
+}
+//просто ввод quantity и предложение вариантов || return -1, если quantity < 0, return 0, если quantity = 0
+
+void Create(const int& quantity, CStorage& Storage)
+{
+    int comand;
+
+    cin >> comand;
+    switch (comand)
+    {
+    case 0:
+    {
+        cout << "Хорошо, да будет так." << endl << "Удачи и хорошего настроения)" << endl;
+        throw 0;
+    }
+    case 1:
+        if (quantity == 1) //точечка
+        {
+            cout << "CPoint" << endl;
+            CPoint point;
+            Storage.VPoints.push_back(point);
+            point.GetPoint();
+            cout << endl;
+        }
+        else if (quantity >= 2) //ломаная
+        {
+            cout << "CPolyLine" << endl;
+            CPolyLine lieine(quantity);
+            Storage.VPolylines.push_back(lieine);
+            /*get*/
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw -10;
+        }
+    case 2:
+
+        if (quantity > 3) //замкнутая ломаная
+        {
+            cout << "Ccycle_polyline" << endl;
+            Ccycle_polyline lieil;
+            Storage.VCycle_polylines.push_back(lieil);
+            /*get
+            check for cycle*/
+            cout << endl;
+        }
+        else if (quantity == 3) //треугольник
+        {
+            cout << "Ctriangle" << endl;
+            Ctriangle ABC;
+            Storage.VTriangles.push_back(ABC);
+            /*ABC.Find_S();
+            * check for 90 ()
+            * check for convexity
+            * check for cycle
+            * check for clear ()
+            * Get
+            * (r R)
+            */
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw -20;
+        }
+    case 3:
+        if (quantity > 3) //многоугольник
+        {
+            cout << "Cpolygon" << endl;
+            Cpolygon ABCDEF;
+            Storage.VPolygones.push_back(ABCDEF);
+            /*
+            get
+            check for conv
+            check for cycle
+            */
+            cout << endl;
+        }
+        else if (quantity == 3) //правильный треугольник
+        {
+            cout << "Cclear_polygon" << endl;
+            Cclear_polygon clear_ABCDEF;
+            Storage.VClear_polygones.push_back(clear_ABCDEF);
+            /*ABC.Find_S();
+            * check for 90 ()
+            * check for convexity
+            * check for cycle
+            * check for clear ()
+            * Get
+            * (r R)
+            */
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw - 30;
+        }
+    case 4:
+    {
+        if (quantity > 3)
+        {
+            cout << "Cclear_polygon" << endl;
+            Cclear_polygon clear_ABCDEF;
+            Storage.VClear_polygones.push_back(clear_ABCDEF);
+            /*
+                get
+                check for conv
+                check for cycle
+                check for ideal
+                (r R)
+            */
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw - 40;
+        }
+    }
+    case 5:
+        if (quantity == 4)
+        {
+            cout << "Ctrapezoid" << endl;
+            Ctrapezoid VQOW;
+            Storage.VTrapezoids.push_back(VQOW);
+            /*
+                get
+                check for conv
+                check for cycle
+                check for ||
+                (r R)
+            */
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw - 50;
+        }
+    case 6:
+        if (quantity == 4)
+        {
+            cout << "Cparallelogram" << endl;
+            Cparallelogram ABCD;
+            Storage.Vparallelogrames.push_back(ABCD);
+            /*
+                get
+                check for conv
+                check for cycle
+                check for || and ||
+                (r R)
+            */
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw - 60;
+        }
+    case 7:
+        if (quantity == 4)
+        {
+            cout << "CRhombus" << endl;
+            CRhombus ROMB;
+            Storage.VRhombuses.push_back(ROMB);
+            /*
+                get
+                check for conv
+                check for cycle
+                check for || and ||
+                (r R)
+            */
+            cout << endl;
+        }
+        else
+        {
+            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
+            throw - 70;
+        }
+
+    default:
+        {
+            cout << "Хочу обратиться к этому Обэмэ: тут беды с башкой, все-го хо-ро - ше-го! " << endl;
+            throw -2;
+        }
+    }
+}
+//throw 0, если не хотим, -2, если незнакомая команда, -*0, если в каком-то кейсе что-то пошло не так
+
+void AskForAgain() 
+{
+    cout << "Хотите сделать что-нибудь еще разок? (Y/N) ";
+    char command;
+    cin >> command;
+    if (command == 'Y')
+    {
+        int help = AskForCreate(); //спрашиваем quantity и предлагаем создание
+        if ((help == 0) || (help == -1)) //если quantity немного не такое
+        {
+            try
+            {
+                AskForAgain(); //предлагаем заново
+            }
+            catch (int& ex) //ну а если не хотят, то звершение работы сознания
+            {
+                if (ex == 0)
+                    throw 0; // не хотят - выходим
+                else
+                    throw -1; // другой символ ввели
+            }
+        }
+    }
+    else if (command == 'N')
+    {
+        cout << "Удачи)"; throw 0;
+    }
+    else
+        throw - 1;
+}    
+//throw -1, когда что-т поломается, и 0, если не хотим
+
+int main()
+{
+    setlocale(LC_ALL, "Rus");
+    CStorage Storage;
+
+    cout << "Привет!" << endl;
+    cout << "Пока что все работает, вас приветсвует мини-терминал по созданию всяких геометрических штук!)" << endl;
+    int help = AskForCreate(); //спрашиваем quantity и предлагаем создание
+    if ((help == 0) || (help == -1)) //если quantity немного не такое
+    {
+        try
+        {
+            AskForAgain(); //предлагаем заново
+        }
+        catch(int& ex) //ну а если не хотят, то звершение работы сознания
+        {
+            if (ex == 0)
+                return 0; // не хотят
+            else
+                return -1; // другой символ ввели
+        }
+    }
+   
+    try 
+    { 
+        Create(help, Storage); //пытаемся создать
+    }
+    catch (int& ex) //что-то идет не так
+    {
+        if (ex == 0) // не хотят создавать - не надо
+        {
+            return 0;
+        }
+
+        try //в других случаях мы предлагаем заново
+        {
+            AskForAgain();
+        }
+        catch(int& ex) //ну а если не хотят, то звершение работы сознания
+        {
+            if (ex == 0)
+                return 0;//не хотят
+            else
+                return -1; // ввели другой символ
+        }
+    }
+            
+
+
+
+    system("pause");
+    return 0;
+}
+
 
 
 double Find_P(CFigure figure)
 {
     int X1, X2, Y1, Y2;
     double P;
-    for (int i = 0; i < figure.Get_quantity() - 1; i++)
+    for (int i = 0; i < figure.Get_size() - 1; i++)
     {
         X1 = figure.Get_point(i).Get_X();     Y1 = figure.Get_point(i).Get_Y();
         X2 = figure.Get_point(i + 1).Get_X(); Y2 = figure.Get_point(i + 1).Get_Y();
@@ -450,50 +793,28 @@ double Find_P(CFigure figure)
     return P;
 }
 
-
-int main()
+void Find_P(CPoint point)
 {
-    cout << "CPoint" << endl;
-    CPoint point;
+    cout << "Уау! Вы получили ничего! Вы прогрессируете дальше!" << endl;
+}
 
-    cout << endl;
+ double Find_S(CFigure figure) 
+    {
+        int X1, X2, Y1, Y2;
+        double S;
+        double s1 = 0, s2 = 0;
+        for (int i = 0; i < figure.Get_size() - 1; i++)
+        {
+            X1 = figure.Get_point(i).Get_X();      Y1 = figure.Get_point(i).Get_Y();
+            X2 = figure.Get_point(i + 1).Get_X();  Y2 = figure.Get_point(i + 1).Get_Y();
+            s1 += X1 * Y2;
+            s2 += Y1 * X2;
+        }
+        S = ((s1 - s2) / 2);
+        return S;
+    }
 
-    cout << "CPolyLine" << endl;
-    CPolyLine lieine;
-
-    cout << endl;
-
-
-    cout << "Ccycle_polyline" << endl;
-    Ccycle_polyline lieil;
-
-    cout << endl;
-
-
-    cout << "Cpolygon" << endl;
-    Cpolygon ABCDEF;
-
-    cout << endl;
-
-
-    cout << "Ctriangle" << endl;
-    Ctriangle ABC;
-
-    cout << endl;
-
-
-    cout << "Ctrapezoid" << endl;
-    Ctrapezoid ABCD;
-
-    cout << endl;
-
-
-    cout << "Cclear_polygon" << endl;
-    Cclear_polygon clear_ABCDEF;
-
-    cout << endl;
-
-
-
-    return 0;
+void Find_S(CPoint point)
+{
+    cout << "Невозможно! Вы получили ничего! Ваш прогресс не знает пределов!" << endl;
 }
