@@ -7,18 +7,30 @@
 #include <locale>
 using namespace std;
 
+#define PI 3.14159265358979323846
 
-//мы длжны постоянно помнить, что надо сохранять инвариантность, следовательно не надо создавать плохие объекты   ok
-//еще надо допилить универсальные конструкторы   ok
-//и сделать проверки в собственных конструкторах   ok
+class CFigure;
+class CPoint;
+class CPolyLine;
+class Ccycle_polyline;
+class Cpolygon;
+class Ctriangle;
+class Ctrapezoid;
+class Cclear_polygon;
+
+class Cparallelogram;
+class CRhombus;
+//мы длжны постоянно помнить, что надо сохранять инвариантность, следовательно не надо создавать плохие объекты     ok
+//еще надо допилить универсальные конструкторы      ok
+//и сделать проверки в собственных конструкторах     ok
 
 //а еще надо бы сделать 9) Создать еще что-будь 
 //и в начале выбор на 1) создать  2) посмотреть на чадо
 
-//надо отвязатся от консольки (сначла вводим точки, а потом пихаем их в вектор и в кажом классе можно этот вектор принимать)     
-//и еще надо перенести периметр и площадь в классы соответвующие и сдлать их виртуальными (для того, чтбы для потомков тоде работало)   ok
-//и просто еще допилить, чтобы все ок было
-//а, еще надо подкорректировать == и сделать ретурн в проверке вместо исключений
+//надо отвязатся от консольки (сначла вводим точки, а потом пихаем их в вектор и в кажом классе можно этот вектор принимать)     ок   
+//и еще надо перенести периметр и площадь в классы соответвующие и сдлать их виртуальными (для того, чтбы для потомков тоде работало)     ok
+//и просто еще допилить, чтобы все ок было        ок
+//а, еще надо подкорректировать == и сделать ретурн в проверке вместо исключений      ок
 //и еще надо в исключениях сделать класс ексепшн, чтобы было по кайфу        ok
 
 class CStorage
@@ -62,7 +74,7 @@ public:
     CFigure() {}
     CFigure(vector <CPoint> PlentyOfPoints)
     {
-        SetFigure(PlentyOfPoints); 
+        SetFigure(PlentyOfPoints);
         cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
 
@@ -71,7 +83,7 @@ public:
         points_.resize(PlentyOfPoints.size());
         for (int i = 0; i < PlentyOfPoints.size(); i++)
         {
-            points_.at(i) = PlentyOfPoints.at(i);
+            points_.at(i) = PlentyOfPoints.at(i); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
     }
     virtual bool Check_for_cycle() { return ((Get_point(0).Get_X() == Get_point(Get_size() - 1).Get_X()) && (Get_point(0).Get_Y() == Get_point(Get_size() - 1).Get_Y())); }
@@ -126,7 +138,7 @@ public:
     {
         for (int i = 0; i < sides_.size() - 1; i++)
         {
-            if (!(sides_.at(i) == sides_.at(i + 1))) { return false; }
+            if (!((sides_.at(i).Get_X() == sides_.at(i + 1).Get_X()) && (sides_.at(i).Get_Y() == sides_.at(i + 1).Get_Y()))) { return false; }
         }
         return true;
     }
@@ -137,7 +149,7 @@ public:
         int X1, X2, Y1, Y2;
         double S;
         double s1 = 0, s2 = 0;
-        for (int i = 0; i < points_.size() - 1; i++)
+        for (unsigned int i = 0; i < points_.size() - 1; i++)
         {
             X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();
             X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
@@ -151,7 +163,7 @@ public:
     {
         int X1, X2, Y1, Y2;
         double P;
-        for (int i = 0; i < points_.size() - 1; i++)
+        for (unsigned int i = 0; i < points_.size() - 1; i++)
         {
             X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
             X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y();
@@ -159,7 +171,7 @@ public:
         }
         return P;
     }
-    virtual double Find_R() {}
+    virtual double Find_R() {}//////////////////////////**************************************************************************
     virtual double Find_r() {} //////////////////////////**************************************************************************
 };
 class CPoint // точка
@@ -172,7 +184,9 @@ public:
     CPoint(int x) : X_(x), Y_(0) {}
     CPoint() : X_(0), Y_(0) {}
     CPoint(vector <CPoint> vpoints) :
-        X_(vpoints.front().X_), Y_(vpoints.front().Y_) { Find_P(); Find_S(); }
+        X_(vpoints.front().X_), Y_(vpoints.front().Y_) {
+        Find_P(); Find_S();
+    }
     CPoint(const CPoint& another) : // конструктор копирования
         X_(another.X_), Y_(another.Y_)
     {}
@@ -215,7 +229,9 @@ public:
     }
 
     friend bool operator== (const CPoint& another, const CPoint& that)
-    { return ((another.X_ == that.X_) && (another.Y_ == that.Y_)); }
+    {
+        return ((another.X_ == that.X_) && (another.Y_ == that.Y_));
+    }
     friend istream& operator>> (istream& indata, CPoint point)
     {
         int x, y;
@@ -225,7 +241,7 @@ public:
         point.Set_XY(x, y);
         return indata;
     }
-    
+
     void Find_P()
     {
         cout << "P.. Уау! Вы получили ничего! Вы прогрессируете дальше!" << endl;
@@ -257,7 +273,7 @@ public:
             Get_point(i).GetPoint();
     }
 
-    const char* Find_S(int){ return "Невероятно! Путем своих усилий вы достигли ничего! Ваш прогресс вам аплодирует!"; }
+    const char* Find_S(int) { return "Невероятно! Путем своих усилий вы достигли ничего! Ваш прогресс вам аплодирует!"; }
 
     ~CPolyLine() { Get_All_points().clear(); }
 };
@@ -272,7 +288,7 @@ public:
     {
         try
         {
-            if (!(Check_for_cycle))
+            if (!(Check_for_cycle()))
             {
                 throw exception("Sorry, but this polyline not cycle");
             }
@@ -290,7 +306,7 @@ public:
         SetFigure(PlentyOfPoints);
     }
 
-    void GetPolyLine()
+    void GetCyclePolyLine()
     {
         for (int i = 0; i < Get_size(); i++)
             Get_point(i).GetPoint();
@@ -347,7 +363,7 @@ public:
         {
             if (Check_for_convexity())
             {
-                throw exception("Sorry, but it's not a convexity polygon");
+                throw exception("Sorry, but it's not a convexity triangle");
             }
             SetPolygon(PlentyOfPoints);
             cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
@@ -359,7 +375,7 @@ public:
             {
                 cout << "Нашим рабам не удалось получить идеально треугольную пирамиду - нужно больше золота. Народ любит вас, сир!" << endl;
             }
-            
+
         }
         catch (exception& ex)
         {
@@ -405,75 +421,61 @@ public:
 class Ctrapezoid : public CFigure // трапеция
 {
 private:
-    double P_;
-    double S_;
-    vector<CPoint> points_;
-    vector<double> sides_;
 public:
-
-    int X1 = 0, X2 = 0, Y1 = 0, Y2 = 0;
-
-    Ctrapezoid()
+    // (можно еще и на 90)
+    Ctrapezoid() {}
+    Ctrapezoid(vector <CPoint> PlentyOfPoints)
     {
-        points_.reserve(4);
-        sides_.reserve(4);
-        for (int i = 0; i < 4; i++)
+        try
         {
-            points_.at(i).SetPoint();
+            if (Check_for_convexity())
+            {
+                throw exception("Мир и ровные пацанчики спасены, ведь вы предотвратили рождение ТРАПА!");
+            }
+            if (!(Check_for_real_trapezoid()))
+            {
+                throw exception("Мир и ровные пацанчики спасены, ведь вам показалось, что это ТРАП");
+            }
+            SetTrapezoid(PlentyOfPoints);
+            cout << "P = " << Find_P() << "  and  S = " << Find_S() << endl;
         }
+        catch (exception& ex) { cout << ex.what() << endl; }
     }
 
-    void SetTrapezoid()
+    bool Check_for_real_trapezoid()
     {
-        points_.resize(4);
-        sides_.reserve(4);
-        for (int i = 0; i < 4; i++)
+        if (((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())
+            == (Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())
+            || (Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X())
+            == (Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X()))
+            && ((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())
+                != (Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X())
+                && (Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())
+                != (Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X())))
         {
-            points_.at(i).SetPoint();
+            return true;
         }
+        else return false;
     }
+
+    void SetTrapezoid(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
 
     void GetTrapezoid()
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
-            points_.at(i).GetPoint();
+            Get_point(i).GetPoint();
         }
     }
-    double Get_S() { return S_; }
-    double Get_P() { return P_; }
 
-    void Find_P()
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
-            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y(); /// нужна проверка на выпуклость и проверка на параллельность (можно еще и на 90)
-            P_ += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
-            sides_.at(i) = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
-        }
-        cout << "P = " << P_ << endl;
-    }
-    void Find_S()
-    {
-        double s1 = 0, s2 = 0;
-        for (int i = 0; i < 3; i++)
-        {
-            X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();
-            X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
-            s1 += X1 * Y2;
-            s2 += Y1 * X2;
-        }
-        S_ = ((s1 - s2) / 2);
-        cout << "S = " << S_ << endl;
-    }
+
+
     ~Ctrapezoid()
     {
-        points_.clear();
-        sides_.clear();
+        Get_All_points().clear();
+        Get_All_sides().clear();
     }
 };
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Cclear_polygon : public Cpolygon // правильный многоугольник
 {
 private:
@@ -492,16 +494,6 @@ public:
                 throw exception("Вся симметричность и справедливость всего мироздания, в котором мы так преисполнились, впрочем как и адекватность, безвозвратно утеряна....");
             }
             SetClearPolygon(PlentyOfPoints);
-            /*угол, который вам нужен, это angle = 2 * pi / numPoints.
-
-затем, начиная вертикально над началом координат с размером многоугольника, заданного radius:
-
-for (int i = 0; i < numPoints; i++)
-{
-    x = centreX + radius * sin(i * angle);
-    y = centreY + radius * cos(i * angle);
-}
-если ваш центр является источником, просто игнорируйте centreX и centreY термины, как они будут 0,0.*/
             cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
         }
         catch (exception& ex)
@@ -512,14 +504,31 @@ for (int i = 0; i < numPoints; i++)
     }
 
     void SetClearPolygon(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    /*
+    void SetClearPolygon(vector <CPoint> PlentyOfPoints) // "хорошее" построение многоугольника
+    {
+        double alpha = (2 * PI) / PlentyOfPoints.size(); //наш угол
+        double x, y;
+        for (int i = 0; i < PlentyOfPoints.size(); i++)
+        {
+            x = Centre_X + R * sin(i * alpha); //где Сentre - координаты центра правильног омногоугольника (если мы в начале координат, то Центр Х У = 0), R - радиус (опис. окр.)
+            y = Centre_Y + R * sin(i * alpha); //строим, начиная с PI/2(сверху)
+            Get_point(i).Set_XY(x, y);
+        }
+    }
+    */
     void GetClearPolygon()
     {
         for (int i = 0; i < Get_size(); i++)
             Get_point(i).GetPoint();
     }
 
+    ~Cclear_polygon()
+    {
+        Get_All_points().clear();
+        Get_All_sides().clear();
+    }
 };
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Cparallelogram : public Cpolygon
 {
 
@@ -537,7 +546,7 @@ class CRhombus : public Cparallelogram
 vector <CPoint> AskForCreate(vector <CPoint> PlentyOfPoints)
 {
 
-    cout << endl << "Пожалуйста, вводите точки, из которых хотите воплощать свои геометрические мечты в реальность:";
+    cout << endl << "Пожалуйста, вводите точки, из которых хотите воплощать свои геометрические мечты в реальность:  (для того, чтобы остановиться, нажмите 'ё'" << endl;
     CPoint start_point;
 
     for (CPoint start_point; ((cin.peek() != '`') || (cin.peek() != 'ё')) && cin >> start_point;)
@@ -547,13 +556,11 @@ vector <CPoint> AskForCreate(vector <CPoint> PlentyOfPoints)
 
     if (PlentyOfPoints.size() < 0)
     {
-        cout << "Ну, тут наши полномочия всё, окончены..." << endl;
-        return;
+        throw exception("Ну, тут наши полномочия всё, окончены...");
     }
     else if (PlentyOfPoints.size() == 0)
-    {   
-        cout << "Поздравляем! Вы сделали абсолютно ничего, это успех! Вы прогрессируете!" << endl;
-        return;
+    {
+        throw exception("Поздравляем! Вы сделали абсолютно ничего, это успех! Вы прогрессируете!");
     }
 
     cout << "из этих точек вы можете сотворить: " << endl << "0) Ничего не хочу." << endl;;
@@ -572,7 +579,7 @@ vector <CPoint> AskForCreate(vector <CPoint> PlentyOfPoints)
     cout << endl << "Итак, что же вы хотите?" << endl;
     return PlentyOfPoints;
 }
-//просто ввод quantity и предложение вариантов || return -1, если quantity < 0, return 0, если quantity = 0
+//просто ввод точек пока не надоест и предложение вариантов || return vector <CPoint> PlentyOfPoints
 
 void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
 {
@@ -601,14 +608,12 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
             CPolyLine lieine(PlentyOfPoints);
             Storage.VPolylines.push_back(lieine);
             lieine.GetPolyLine();
-            lieine.Find_P(lieine);
-            lieine.Find_S(lieine);
             cout << endl;
         }
         else
         {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 10;
+            cout << "Не известно почему, но по ходу не Самбади...";
+            throw exception("Произошел сбой в команде 1");
         }
     case 2:
 
@@ -617,8 +622,7 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
             cout << "Ccycle_polyline" << endl;
             Ccycle_polyline lieil(PlentyOfPoints);
             Storage.VCycle_polylines.push_back(lieil);
-            /*get
-            check for cycle*/
+            lieil.GetCyclePolyLine();
             cout << endl;
         }
         else if (PlentyOfPoints.size() == 3) //треугольник
@@ -626,20 +630,16 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
             cout << "Ctriangle" << endl;
             Ctriangle ABC(PlentyOfPoints);
             Storage.VTriangles.push_back(ABC);
-            /*ABC.Find_S();
-            * check for 90 ()
-            * check for convexity
-            * check for cycle
-            * check for clear ()
-            * Get
+            ABC.GetTriangle();
+            /* check for 90 ()
             * (r R)
             */
             cout << endl;
         }
         else
         {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 20;
+            cout << "Не известно почему, но по ходу не Самбади...";
+            throw exception("Произошел сбой в команде 2");
         }
     case 3:
         if (PlentyOfPoints.size() > 3) //многоугольник
@@ -647,32 +647,22 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
             cout << "Cpolygon" << endl;
             Cpolygon ABCDEF(PlentyOfPoints);
             Storage.VPolygones.push_back(ABCDEF);
-            /*
-            get
-            check for conv
-            check for cycle
-            */
+            ABCDEF.GetPolygon();
             cout << endl;
         }
         else if (PlentyOfPoints.size() == 3) //правильный треугольник
         {
             cout << "Cclear_polygon" << endl;
-            Cclear_polygon clear_ABCDEF(PlentyOfPoints);
-            Storage.VClear_polygones.push_back(clear_ABCDEF);
-            /*ABC.Find_S();
-            * check for 90 ()
-            * check for convexity
-            * check for cycle
-            * check for clear ()
-            * Get
-            * (r R)
-            */
+            Cclear_polygon clear_ABC(PlentyOfPoints);
+            Storage.VClear_polygones.push_back(clear_ABC);
+            clear_ABC.GetClearPolygon();
+            // (r R)
             cout << endl;
         }
         else
         {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 30;
+            cout << "Не известно почему, но по ходу не Самбади...";
+            throw exception("Произошел сбой в команде 3");
         }
     case 4:
     {
@@ -681,19 +671,14 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
             cout << "Cclear_polygon" << endl;
             Cclear_polygon clear_ABCDEF(PlentyOfPoints);
             Storage.VClear_polygones.push_back(clear_ABCDEF);
-            /*
-                get
-                check for conv
-                check for cycle
-                check for ideal
-                (r R)
-            */
+            clear_ABCDEF.GetClearPolygon();
+            //    (r R)
             cout << endl;
         }
         else
         {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 40;
+            cout << "Не известно почему, но по ходу не Самбади...";
+            throw exception("Произошел сбой в команде 4");
         }
     }
     case 5:
@@ -702,65 +687,59 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
             cout << "Ctrapezoid" << endl;
             Ctrapezoid VQOW(PlentyOfPoints);
             Storage.VTrapezoids.push_back(VQOW);
-            /*
-                get
-                check for conv
-                check for cycle
-                check for ||
-                (r R)
-            */
+            VQOW.GetTrapezoid();
+            //    (r R)
             cout << endl;
         }
         else
         {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 50;
+            cout << "Не известно почему, но по ходу не Самбади...";
+            throw exception("Произошел сбой в команде 5");
         }
-    case 6:
-        if (PlentyOfPoints.size() == 4)
-        {
-            cout << "Cparallelogram" << endl;
-            Cparallelogram ABCD(PlentyOfPoints);
-            Storage.Vparallelogrames.push_back(ABCD);
-            /*
-                get
-                check for conv
-                check for cycle
-                check for || and ||
-                (r R)
-            */
-            cout << endl;
-        }
-        else
-        {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 60;
-        }
-    case 7:
-        if (PlentyOfPoints.size() == 4)
-        {
-            cout << "CRhombus" << endl;
-            CRhombus ROMB(PlentyOfPoints);
-            Storage.VRhombuses.push_back(ROMB);
-            /*
-                get
-                check for conv
-                check for cycle
-                check for || and ||
-                (r R)
-            */
-            cout << endl;
-        }
-        else
-        {
-            cout << "Не известно как, но вы сломали устройство мира, в котором так преисполнились...";
-            throw - 70;
-        }
+        //case 6:
+        //    if (PlentyOfPoints.size() == 4)
+        //    {
+        //        cout << "Cparallelogram" << endl;
+        //        Cparallelogram ABCD(PlentyOfPoints);
+        //        Storage.Vparallelogrames.push_back(ABCD);
+        //        /*
+        //            get
+        //            check for conv
+        //            check for cycle
+        //            check for || and ||
+        //            (r R)
+        //        */
+        //        cout << endl;
+        //    }
+        //    else
+        //    {
+        //        cout << "Не известно почему, но по ходу не Самбади...";
+        //        throw exception("Произошел сбой в команде 6");
+        //    }
+        //case 7:
+        //    if (PlentyOfPoints.size() == 4)
+        //    {
+        //        cout << "CRhombus" << endl;
+        //        CRhombus ROMB(PlentyOfPoints);
+        //        Storage.VRhombuses.push_back(ROMB);
+        //        /*
+        //            get
+        //            check for conv
+        //            check for cycle
+        //            check for || and ||
+        //            (r R)
+        //        */
+        //        cout << endl;
+        //    }
+        //    else
+        //    {
+        //        cout << "Не известно почему, но по ходу не Самбади...";
+        //        throw exception("Произошел сбой в команде 7");
+        //    }
 
     default:
     {
-        cout << "Хочу обратиться к этому Обэмэ: тут беды с башкой, все-го хо-ро - ше-го! " << endl;
-        throw - 2;
+        throw exception("Хочу обратиться к этому Обэмэ: тут беды с башкой, все-го хо-ро - ше-го! ");
     }
     }
 }
@@ -771,7 +750,7 @@ void AskForAgain(vector <CPoint> PlentyOfPoints)
     cout << "Хотите сделать что-нибудь еще разок? (Y/N) ";
     char command;
     cin >> command;
-    if ((command == 'Y') || (command == 'y'))
+    if ((command == 'Y') || (command == 'y') || (command == 'Н') || (command == 'н'))
     {
         vector <CPoint> PlentyOfPoints = AskForCreate(PlentyOfPoints); //спрашиваем quantity и предлагаем создание
         if ((PlentyOfPoints.size() == 0) || (PlentyOfPoints.size() == -1)) //если quantity немного не такое
@@ -785,18 +764,18 @@ void AskForAgain(vector <CPoint> PlentyOfPoints)
                 if (ex == 0)
                     throw 0; // не хотят - выходим
                 else
-                    throw - 1; // другой символ ввели
+                    throw exception("Долбаный рот этого казино! Ты кто такой? Ты мне не попадайся на глаза - я тебе кадык вырву.      *за вами выехал Киборг-убийца, последний понедельник живете...*"); //другой символ
             }
         }
     }
-    else if ((command == 'N') || (command == 'n'))
+    else if ((command == 'N') || (command == 'n') || (command == 'Т') || (command == 'т'))
     {
         cout << "Удачи)"; throw 0;
     }
     else
-        throw - 1;
+        throw exception("Долбаный рот этого казино! Ты кто такой? Ты мне не попадайся на глаза - я тебе кадык вырву.      *за вами выехал Киборг-убийца, последний понедельник живете...*");//другой символ
 }
-//throw -1, когда что-т поломается, и 0, если не хотим
+//throw 0, если не хотим || ex, если не тот символ
 
 int main()
 {
@@ -815,13 +794,11 @@ int main()
         }
         catch (int& ex) //ну а если не хотят, то звершение работы сознания
         {
-            if (ex == 0)
-                return 0; // не хотят
-            else
-            {
-                cout << "Error №" << ex << endl;
-                return -1; // другой символ ввели
-            }
+            return 0; // не хотят
+        }
+        catch (exception& ex) //не тот символ
+        {
+            cout << ex.what() << endl;
         }
     }
 
@@ -831,26 +808,28 @@ int main()
     }
     catch (int& ex) //что-то идет не так
     {
-        if (ex == 0) // не хотят создавать - не надо
-        {
-            return 0;
-        }
-
+        return 0;
+    }
+    catch (exception& ex)
+    {
+        cout << ex.what() << endl;
         try //в других случаях мы предлагаем заново
         {
-            AskForAgain(PlentyOfPoints);
+            AskForAgain(PlentyOfPoints); //предлагаем заново
         }
         catch (int& ex) //ну а если не хотят, то звершение работы сознания
         {
-            if (ex == 0)
-                return 0;//не хотят
-            else
-                return -1; // ввели другой символ
+            return 0; // не хотят
+        }
+        catch (exception& ex) //не тот символ
+        {
+            cout << ex.what() << endl;
         }
     }
 
 
-
+    cout << "Совет: не забывайте мыть руки и соблюдать дистанцию 1,5 метра" << endl;
+    cout << "Ricardo Milos гордится вами, вы справились и спасли Джумаджи!" << endl;
 
     system("pause");
     return 0;
