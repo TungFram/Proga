@@ -24,7 +24,7 @@ class CRhombus;
 //еще надо допилить универсальные конструкторы      ok
 //и сделать проверки в собственных конструкторах     ok
 
-//а еще надо бы сделать 9) Создать еще что-будь 
+//а еще надо бы сделать 9) Создать еще что-будь            !!!!!!!!!!!!!!!!!!!
 //и в начале выбор на 1) создать  2) посмотреть на чадо
 
 //надо отвязатся от консольки (сначла вводим точки, а потом пихаем их в вектор и в кажом классе можно этот вектор принимать)     ок   
@@ -58,122 +58,6 @@ public:
     }
 };
 
-class CFigure {
-private:
-    vector <CPoint> points_;
-    vector <CPoint> sides_;
-public:
-    CPoint Get_point(int i) { return points_[i]; }
-    CPoint Get_side(int i) { return sides_[i]; }
-    vector <CPoint> Get_All_points() { return points_; }
-    vector <CPoint> Get_All_sides() { return sides_; }
-    int Get_size() { return sides_.size(); }
-    void Set_point(static const CPoint point) { points_.push_back(point); }
-    void Set_side(static const CPoint side) { sides_.push_back(side); }
-
-    CFigure() {}
-    CFigure(vector <CPoint> PlentyOfPoints)
-    {
-        SetFigure(PlentyOfPoints);
-        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-    }
-
-    void SetFigure(vector <CPoint> PlentyOfPoints)
-    {
-        points_.resize(PlentyOfPoints.size());
-        for (int i = 0; i < PlentyOfPoints.size(); i++)
-        {
-            points_.at(i) = PlentyOfPoints.at(i); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        }
-    }
-    virtual bool Check_for_cycle() { return ((Get_point(0).Get_X() == Get_point(Get_size() - 1).Get_X()) && (Get_point(0).Get_Y() == Get_point(Get_size() - 1).Get_Y())); }
-    //true - yes   false - no
-    virtual bool Check_for_convexity()
-    {
-        try
-        {
-            if (!(Check_for_cycle()))
-            {
-                throw exception("Sorry, but this polyline not cycle!");
-            }
-            int X1, X2, Y1, Y2, X, Y;
-
-            int help_turn = 0;
-            int count = 0 - sides_.size();
-            for (int i = 0; i < sides_.size() - 1; i++)
-            {
-                X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();      //мы берем координаты у точек
-                X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
-                X = X2 - X1; Y = Y2 - Y1; //считаем координаты у ребра
-                sides_.at(i).Set_XY(X, Y); //кладем координаты ребер как координаты точек в вспомогательный массив
-            }
-            X1 = points_.at(sides_.size() - 1).Get_X();      Y1 = points_.at(sides_.size() - 1).Get_Y(); //тут мы делаем то же самое, просто последний раз, вручную, ибо иначе мы бы вышли за пределы
-            X2 = points_.at(0).Get_X();                      Y2 = points_.at(0).Get_Y();
-            X = X2 - X1; Y = Y2 - Y1;
-            sides_.at(sides_.size()).Set_XY(X, Y); //ребра запонены
-
-            for (int i = 0; i < Get_size() - 1; i++) //проверяем выпуклость с помощью поворотов
-            {
-                X1 = sides_.at(i).Get_X();      Y1 = sides_.at(i).Get_Y();      //мы берем точки уже у ребер
-                X2 = sides_.at(i + 1).Get_X();  Y2 = sides_.at(i + 1).Get_Y();
-                help_turn = (X1 * Y2 - Y1 * X2); //формула поворота, >0, когда поворот налево; <0 - направо; =0 - коллинеарны
-                if (help_turn < 0)
-                {
-                    count++; //будем по умолчанию обходить слева, таким образом если все ок, то в конце quantity = 0, а иначе все плохо
-                }
-            }
-
-            return (count < 0);
-
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-            return true;
-        }
-
-    }
-    //false - ok     true - не выпуклый или не замкнутый 
-    virtual bool Check_for_ideal()
-    {
-        for (int i = 0; i < sides_.size() - 1; i++)
-        {
-            if (!((sides_.at(i).Get_X() == sides_.at(i + 1).Get_X()) && (sides_.at(i).Get_Y() == sides_.at(i + 1).Get_Y()))) { return false; }
-        }
-        return true;
-    }
-    //true - yes     false - no
-
-    virtual double Find_S()
-    {
-        int X1, X2, Y1, Y2;
-        double S;
-        double s1 = 0, s2 = 0;
-        for (unsigned int i = 0; i < points_.size() - 1; i++)
-        {
-            X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();
-            X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
-            s1 += X1 * Y2;
-            s2 += Y1 * X2;
-        }
-        S = ((s1 - s2) / 2);
-        return S;
-    }
-    virtual double Find_P()
-    {
-        int X1, X2, Y1, Y2;
-        double P;
-        for (unsigned int i = 0; i < points_.size() - 1; i++)
-        {
-            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
-            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y();
-            P += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
-        }
-        return P;
-    }
-    virtual double Find_R() {}//////////////////////////**************************************************************************
-    virtual double Find_r() {} //////////////////////////**************************************************************************
-};
 class CPoint // точка
 {
 private:
@@ -234,10 +118,8 @@ public:
     }
     friend istream& operator>> (istream& indata, CPoint point)
     {
-        int x, y;
-        cout << "("; indata >> x;
-        cout << ";"; indata >> y;
-        cout << ")" << endl;
+        int x, y, i = 1;
+        cout << "Point №" << i << ": "; indata >> x >> y; i++;
         point.Set_XY(x, y);
         return indata;
     }
@@ -253,6 +135,123 @@ public:
     ~CPoint()
     {}
 };
+class CFigure {
+private:
+    vector <CPoint> points_;
+    vector <CPoint> sides_;
+public:
+    CPoint Get_point(int i) { return points_[i]; }
+    CPoint Get_side(int i) { return sides_[i]; }
+    vector <CPoint> Get_All_points() { return points_; }
+    vector <CPoint> Get_All_sides() { return sides_; }
+    int Get_size() { return sides_.size(); }
+    void Set_point(const CPoint point) { points_.push_back(point); }
+    void Set_side(const CPoint side) { sides_.push_back(side); }
+
+    CFigure() {}
+    CFigure(vector <CPoint> PlentyOfPoints)
+    {
+        SetFigure(PlentyOfPoints);
+        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
+    }
+
+    void SetFigure(vector <CPoint> PlentyOfPoints)
+    {
+        points_.resize(PlentyOfPoints.size());//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        for (unsigned int i = 0; i < PlentyOfPoints.size(); i++)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        {//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            points_.at(i) = PlentyOfPoints.at(i); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        }//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+    virtual bool Check_for_cycle() { return ((Get_point(0).Get_X() == Get_point(Get_size() - 1).Get_X()) && (Get_point(0).Get_Y() == Get_point(Get_size() - 1).Get_Y())); }
+    //true - yes   false - no
+    virtual bool Check_for_convexity()
+    {
+        try
+        {
+            if (!(Check_for_cycle()))
+            {
+                throw exception("Sorry, but this polyline not cycle!");
+            }
+            int X1, X2, Y1, Y2, X, Y;
+
+            int help_turn = 0;
+            int count = 0 - sides_.size();
+            for (unsigned int i = 0; i < sides_.size() - 1; i++)
+            {
+                X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();      //мы берем координаты у точек
+                X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
+                X = X2 - X1; Y = Y2 - Y1; //считаем координаты у ребра
+                sides_.at(i).Set_XY(X, Y); //кладем координаты ребер как координаты точек в вспомогательный массив
+            }
+            X1 = points_.at(sides_.size() - 1).Get_X();      Y1 = points_.at(sides_.size() - 1).Get_Y(); //тут мы делаем то же самое, просто последний раз, вручную, ибо иначе мы бы вышли за пределы
+            X2 = points_.at(0).Get_X();                      Y2 = points_.at(0).Get_Y();
+            X = X2 - X1; Y = Y2 - Y1;
+            sides_.at(sides_.size()).Set_XY(X, Y); //ребра запонены
+
+            for (int i = 0; i < Get_size() - 1; i++) //проверяем выпуклость с помощью поворотов
+            {
+                X1 = sides_.at(i).Get_X();      Y1 = sides_.at(i).Get_Y();      //мы берем точки уже у ребер
+                X2 = sides_.at(i + 1).Get_X();  Y2 = sides_.at(i + 1).Get_Y();
+                help_turn = (X1 * Y2 - Y1 * X2); //формула поворота, >0, когда поворот налево; <0 - направо; =0 - коллинеарны
+                if (help_turn < 0)
+                {
+                    count++; //будем по умолчанию обходить слева, таким образом если все ок, то в конце quantity = 0, а иначе все плохо
+                }
+            }
+
+            return (count < 0);
+
+        }
+        catch (exception& ex)
+        {
+            cout << ex.what() << endl;
+            return true;
+        }
+
+    }
+    //false - ok     true - не выпуклый или не замкнутый 
+    virtual bool Check_for_ideal()
+    {
+        for (unsigned int i = 0; i < sides_.size() - 1; i++)
+        {
+            if (!((sides_.at(i).Get_X() == sides_.at(i + 1).Get_X()) && (sides_.at(i).Get_Y() == sides_.at(i + 1).Get_Y()))) { return false; }
+        }
+        return true;
+    }
+    //true - yes     false - no
+
+    virtual double Find_S()
+    {
+        double X1, X2, Y1, Y2;
+        double S;
+        double s1 = 0, s2 = 0;
+        for (unsigned int i = 0; i < points_.size() - 1; i++)
+        {
+            X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X();  Y2 = points_.at(i + 1).Get_Y();
+            s1 += X1 * Y2;
+            s2 += Y1 * X2;
+        }
+        S = ((s1 - s2) / 2);
+        return S;
+    }
+    virtual double Find_P()
+    {
+        int X1, X2, Y1, Y2;
+        double P = 0;
+        for (unsigned int i = 0; i < points_.size() - 1; i++)
+        {
+            X1 = points_.at(i).Get_X();     Y1 = points_.at(i).Get_Y();
+            X2 = points_.at(i + 1).Get_X(); Y2 = points_.at(i + 1).Get_Y();
+            P += sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2));
+        }
+        return P;
+    }
+    //virtual double Find_R() {}//////////////////////////**************************************************************************
+    //virtual double Find_r() {} //////////////////////////**************************************************************************
+};
+
 
 class CPolyLine : public CFigure // ломаная
 {
@@ -301,11 +300,7 @@ public:
         }
     }
 
-    void SetCyclePolyline(vector <CPoint> PlentyOfPoints)
-    {
-        SetFigure(PlentyOfPoints);
-    }
-
+    void SetCyclePolyline(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetCyclePolyLine()
     {
         for (int i = 0; i < Get_size(); i++)
@@ -383,13 +378,10 @@ public:
         }
     }
     void SetTriangle(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
-
     void GetTriangle()
     {
         for (int i = 0; i < 3; i++)
-        {
             Get_point(i).GetPoint();
-        }
     }
 
 
@@ -531,14 +523,105 @@ public:
 };
 class Cparallelogram : public Cpolygon
 {
+private:
+public:
+    Cparallelogram() {}
+    Cparallelogram(vector <CPoint> PlentyOfPoints)
+    {
+        try
+        {
+            if (Check_for_convexity())
+            {
+                throw exception("Sorry, but it's not a convexity polygon");
+            }
+            if (!(Check_for_real_parallelogram()))
+            {
+                throw exception("Жаль, но нам не удалось закинуться ПАРОй ГРАМм кокоса(");
+            }
+            SetParallelogram(PlentyOfPoints);
+            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
+        }
+        catch (exception& ex)
+        {
+            cout << ex.what() << endl;
+        }
+    }
 
+    void SetParallelogram(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void GetParallelogram()
+    {
+        for (int i = 0; i < Get_size(); i++)
+            Get_point(i).GetPoint();
+    }
+
+    bool Check_for_real_parallelogram()
+    {
+        return (((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())
+            == (Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())
+            && (Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X())
+            == (Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X())));
+    }
+    ~Cparallelogram()
+    {
+        Get_All_points().clear();
+        Get_All_sides().clear();
+    }
 };
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 class CRhombus : public Cparallelogram
 {
+private:
+public:
+    CRhombus() {}
+    CRhombus(vector <CPoint> PlentyOfPoints)
+    {
+        try
+        {
+            if (Check_for_convexity())
+            {
+                throw exception("Sorry, but it's not a convexity polygon");
+            }
+            if (!(Check_for_real_rhombus))
+            {
+                throw exception("Константин Воронин-в-попе-макаронин не создал ромб: в попе тромб...");
+            }
+            SetParallelogram(PlentyOfPoints);
+            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
+        }
+        catch (exception& ex)
+        {
+            cout << ex.what() << endl;
+        }
+    }
 
+    void SetRhombus(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void GetRhombus()
+    {
+        for (int i = 0; i < Get_size(); i++)
+            Get_point(i).GetPoint();
+    }
+
+    bool Check_for_real_rhombus()
+    {
+        return ((( ((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())) //попарная параллельность
+            == ((Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())))
+            && (((Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X()))
+            == ((Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X()))))
+
+               && (((sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y()))))
+                == (sqrt(((Get_side(2).Get_X() - Get_side(1).Get_X()) * (Get_side(2).Get_X() - Get_side(1).Get_X())) + ((Get_side(2).Get_Y() - Get_side(1).Get_Y()) * (Get_side(2).Get_Y() - Get_side(1).Get_Y())))))
+               && ((sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y()))))
+                == (sqrt(((Get_side(3).Get_X() - Get_side(2).Get_X()) * (Get_side(3).Get_X() - Get_side(2).Get_X())) + ((Get_side(3).Get_Y() - Get_side(2).Get_Y()) * (Get_side(3).Get_Y() - Get_side(2).Get_Y())))))
+               && ((sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y()))))
+                == (sqrt(((Get_side(0).Get_X() - Get_side(3).Get_X()) * (Get_side(0).Get_X() - Get_side(3).Get_X())) + ((Get_side(0).Get_Y() - Get_side(3).Get_Y()) * (Get_side(0).Get_Y() - Get_side(3).Get_Y())))))));
+    }               // а тут 1 сторона должна равняться 2, 3 и 4 одновременно
+
+
+    ~CRhombus()
+    {
+        Get_All_points().clear();
+        Get_All_sides().clear();
+    }
 };
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -565,8 +648,8 @@ vector <CPoint> AskForCreate(vector <CPoint> PlentyOfPoints)
 
     cout << "из этих точек вы можете сотворить: " << endl << "0) Ничего не хочу." << endl;;
     if (PlentyOfPoints.size() == 1) cout << "1) Точку. Просто одинокую точку...   хнык(   " << endl;
-    else if (PlentyOfPoints.size() > 1)  cout << "1) Ломаную.";                                                                                              //если захотим 2(или более) отдельных точки, то дульки с маком
-    else if (PlentyOfPoints.size() > 3)  cout << "2) Замкнутую ломаную." << endl << "3) Многоугольник." << endl << "4) Правильный многоугольник." << endl;
+    if (PlentyOfPoints.size() > 1)  cout << "1) Ломаную." << endl;                                    //если захотим 2(или более) отдельных точки, то дульки с маком
+    if (PlentyOfPoints.size() > 3)  cout << "2) Замкнутую ломаную." << endl << "3) Многоугольник." << endl << "4) Правильный многоугольник." << endl;
     switch (PlentyOfPoints.size())
     {
     case 3:
@@ -574,7 +657,7 @@ vector <CPoint> AskForCreate(vector <CPoint> PlentyOfPoints)
         cout << "2)               Илюминатиии" << endl << "3)  Идельного илюминатии" << endl;
     }
     case 4:
-        cout << "5) Трапецию." << endl << "6) Параллелограмм (может скоро)." << endl << "7) Ромб (может скоро)." << endl;
+        cout << "5) Трапецию." << endl << "6) Параллелограмм." << endl << "7) Ромб." << endl;
     }
     cout << endl << "Итак, что же вы хотите?" << endl;
     return PlentyOfPoints;
@@ -583,9 +666,11 @@ vector <CPoint> AskForCreate(vector <CPoint> PlentyOfPoints)
 
 void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
 {
+    cout << "Итак, ваше число? ";
     int comand;
 
     cin >> comand;
+    cout << endl;
     switch (comand)
     {
     case 0:
@@ -612,7 +697,7 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
         }
         else
         {
-            cout << "Не известно почему, но по ходу не Самбади...";
+            cout << "Не известно почему, но по ходу не Самбади..." << endl;
             throw exception("Произошел сбой в команде 1");
         }
     case 2:
@@ -638,7 +723,7 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
         }
         else
         {
-            cout << "Не известно почему, но по ходу не Самбади...";
+            cout << "Не известно почему, но по ходу не Самбади..." << endl;
             throw exception("Произошел сбой в команде 2");
         }
     case 3:
@@ -661,12 +746,12 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
         }
         else
         {
-            cout << "Не известно почему, но по ходу не Самбади...";
+            cout << "Не известно почему, но по ходу не Самбади..." << endl;
             throw exception("Произошел сбой в команде 3");
         }
     case 4:
     {
-        if (PlentyOfPoints.size() > 3)
+        if (PlentyOfPoints.size() > 3) //правильный многоугольник
         {
             cout << "Cclear_polygon" << endl;
             Cclear_polygon clear_ABCDEF(PlentyOfPoints);
@@ -677,65 +762,56 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
         }
         else
         {
-            cout << "Не известно почему, но по ходу не Самбади...";
+            cout << "Не известно почему, но по ходу не Самбади..." << endl;
             throw exception("Произошел сбой в команде 4");
         }
     }
     case 5:
-        if (PlentyOfPoints.size() == 4)
+        if (PlentyOfPoints.size() == 4) //трапеция
         {
             cout << "Ctrapezoid" << endl;
             Ctrapezoid VQOW(PlentyOfPoints);
             Storage.VTrapezoids.push_back(VQOW);
             VQOW.GetTrapezoid();
             //    (r R)
+            // 90
             cout << endl;
         }
         else
         {
-            cout << "Не известно почему, но по ходу не Самбади...";
+            cout << "Не известно почему, но по ходу не Самбади..." << endl;
             throw exception("Произошел сбой в команде 5");
         }
-        //case 6:
-        //    if (PlentyOfPoints.size() == 4)
-        //    {
-        //        cout << "Cparallelogram" << endl;
-        //        Cparallelogram ABCD(PlentyOfPoints);
-        //        Storage.Vparallelogrames.push_back(ABCD);
-        //        /*
-        //            get
-        //            check for conv
-        //            check for cycle
-        //            check for || and ||
-        //            (r R)
-        //        */
-        //        cout << endl;
-        //    }
-        //    else
-        //    {
-        //        cout << "Не известно почему, но по ходу не Самбади...";
-        //        throw exception("Произошел сбой в команде 6");
-        //    }
-        //case 7:
-        //    if (PlentyOfPoints.size() == 4)
-        //    {
-        //        cout << "CRhombus" << endl;
-        //        CRhombus ROMB(PlentyOfPoints);
-        //        Storage.VRhombuses.push_back(ROMB);
-        //        /*
-        //            get
-        //            check for conv
-        //            check for cycle
-        //            check for || and ||
-        //            (r R)
-        //        */
-        //        cout << endl;
-        //    }
-        //    else
-        //    {
-        //        cout << "Не известно почему, но по ходу не Самбади...";
-        //        throw exception("Произошел сбой в команде 7");
-        //    }
+        case 6:
+            if (PlentyOfPoints.size() == 4)
+            {
+                cout << "Cparallelogram" << endl;
+                Cparallelogram ABCD(PlentyOfPoints);
+                Storage.Vparallelogrames.push_back(ABCD);
+                ABCD.GetParallelogram();
+                    //(r R)
+                cout << endl;
+            }
+            else
+            {
+                cout << "Не известно почему, но по ходу не Самбади..." << endl;
+                throw exception("Произошел сбой в команде 6");
+            }
+        case 7:
+            if (PlentyOfPoints.size() == 4)
+            {
+                cout << "CRhombus" << endl;
+                CRhombus ROMB(PlentyOfPoints);
+                Storage.VRhombuses.push_back(ROMB);
+                ROMB.GetRhombus();
+                    //(r R)
+                cout << endl;
+            }
+            else
+            {
+                cout << "Не известно почему, но по ходу не Самбади..." << endl;
+                throw exception("Произошел сбой в команде 7");
+            }
 
     default:
     {
@@ -743,7 +819,7 @@ void Create(vector <CPoint> PlentyOfPoints, CStorage& Storage)
     }
     }
 }
-//throw 0, если не хотим, -2, если незнакомая команда, -*0, если в каком-то кейсе что-то пошло не так
+//throw 0, если не хотим, Обэмэ, если незнакомая команда или соответсвущее куйсам исключения
 
 void AskForAgain(vector <CPoint> PlentyOfPoints)
 {
