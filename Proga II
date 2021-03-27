@@ -1,0 +1,84 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+using namespace std;
+
+
+class CPolynom
+{
+private:
+	int extent_ = 0;
+	vector <int> coefficents_;
+public:
+	CPolynom() { /*SetPolynom(0);*/ }
+	CPolynom(vector <int> PlentyOfNumbers) { SetPolynom(PlentyOfNumbers); }
+
+	void SetPolynom(vector <int> PlentyOfNumbers)
+	{
+		for (int i = 0; i < PlentyOfNumbers.size(); i++)
+		{
+			coefficents_[i] = PlentyOfNumbers[i];
+		}
+	}
+	void GetPolynom();
+
+
+	friend CPolynom operator-(const	CPolynom& polynom);
+	friend const CPolynom& operator+ (const	CPolynom& polynom);
+
+	friend bool operator== ();
+	friend bool operator!= ();
+
+	friend CPolynom operator+ ();
+	friend CPolynom operator- ();
+	friend CPolynom operator+= ();
+	friend CPolynom operator-= ();
+
+	friend CPolynom operator* ();
+	friend CPolynom operator/ ();
+	friend CPolynom operator*= ();
+	friend CPolynom operator/= ();
+
+	friend CPolynom operator<< ();
+	friend CPolynom operator>> ();
+
+	friend CPolynom operator[] ();
+
+
+	~CPolynom() { coefficents_.clear(); }
+};
+
+const CPolynom& operator+ (const CPolynom& polynom) { return polynom; }
+CPolynom operator- (const CPolynom& polynom)
+
+
+
+
+vector <int> AskForCreatePolynom(vector <int> PlentyOfNumbers, char* polynom_string)
+{
+	/*cout << "Enter your polynom: ";
+	cin >> polynom_string;
+
+	cout << polynom_string;*/
+
+	return PlentyOfNumbers;
+}
+int main()
+{
+	vector <int> PlentyOfNumbers;
+	char polynom[100];
+
+	//PlentyOfNumbers = AskForCreatePolynom(PlentyOfNumbers, polynom);
+	//CPolynom Polynom(PlentyOfNumbers);
+
+	cout << "Enter your polynom: ";
+	gets(polynom);
+	
+
+	cout << polynom;
+	return 0;
+}
+
+//    5 * x^2 + 6 * x - 100
+//    5*x^2 + 6*x - 100
+//    5x^2 + 6x - 100}
