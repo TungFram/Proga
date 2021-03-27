@@ -33,6 +33,11 @@ class CRhombus;
 //а, еще надо подкорректировать == и сделать ретурн в проверке вместо исключений      ок
 //и еще надо в исключениях сделать класс ексепшн, чтобы было по кайфу        ok
 
+//не виртуальные ф-ии в фигуре     ok
+//константные ссылки    ok
+//кодстайл      
+//исключения не ловить(или в мейне)     ok
+
 class CStorage
 {
 public:
@@ -64,13 +69,10 @@ private:
     int X_ = 0;
     int Y_ = 0;
 public:
-    CPoint(int x, int y) { Set_XY(x, y); }// обычный конструктор
-    CPoint(int x) : X_(x), Y_(0) {}
+    CPoint(int x, int y) : X_(x), Y_(y) {}// обычный конструктор
     CPoint() : X_(0), Y_(0) {}
-    CPoint(vector <CPoint> vpoints) :
-        X_(vpoints.front().X_), Y_(vpoints.front().Y_) {
-        Find_P(); Find_S();
-    }
+    CPoint(const vector <CPoint>& vpoints) :
+        X_(vpoints.front().X_), Y_(vpoints.front().Y_) { Find_P(); Find_S(); } //конструктор по множеству точек
     CPoint(const CPoint& another) : // конструктор копирования
         X_(another.X_), Y_(another.Y_)
     {}
@@ -96,10 +98,7 @@ public:
     }
 
 
-    void GetPoint() // Get
-    {
-        cout << "Point (" << X_ << ";" << Y_ << ")" << endl;
-    }
+    void GetPoint() { cout << "Point (" << X_ << ";" << Y_ << ")" << endl; }
 
     CPoint& operator= (const CPoint& another) // оператор =
     {
@@ -116,32 +115,27 @@ public:
     {
         return ((another.X_ == that.X_) && (another.Y_ == that.Y_));
     }
+
     friend istream& operator>> (istream& indata, CPoint point)
     {
-        int x, y, i = 1;
-        cout << "Point №" << i << ": "; indata >> x >> y; i++;
+        int x, y;
+        cout << "Point: "; indata >> x >> y;
         point.Set_XY(x, y);
         return indata;
     }
 
-    void Find_P()
-    {
-        cout << "P.. Уау! Вы получили ничего! Вы прогрессируете дальше!" << endl;
-    }
-    void Find_S()
-    {
-        cout << "S.. Невозможно! Вы получили ничего! Ваш прогресс не знает пределов!" << endl;
-    }
-    ~CPoint()
-    {}
+    void Find_P() { cout << "P.. Уау! Вы получили ничего! Вы прогрессируете дальше!" << endl; }
+    void Find_S() { cout << "S.. Невозможно! Вы получили ничего! Ваш прогресс не знает пределов!" << endl; }
+    
+    ~CPoint() {}
 };
 class CFigure {
 private:
     vector <CPoint> points_;
     vector <CPoint> sides_;
 public:
-    CPoint Get_point(int i) { return points_[i]; }
-    CPoint Get_side(int i) { return sides_[i]; }
+    CPoint Get_point(const int i) { return points_[i]; }
+    CPoint Get_side(const int i) { return sides_[i]; }
     vector <CPoint> Get_All_points() { return points_; }
     vector <CPoint> Get_All_sides() { return sides_; }
     int Get_size() { return sides_.size(); }
@@ -149,34 +143,25 @@ public:
     void Set_side(const CPoint side) { sides_.push_back(side); }
 
     CFigure() {}
-    CFigure(vector <CPoint> PlentyOfPoints)
+    CFigure(const vector <CPoint>& PlentyOfPoints)
     {
         SetFigure(PlentyOfPoints);
         cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
 
-    void SetFigure(vector <CPoint> PlentyOfPoints)
-    {
-        points_.resize(PlentyOfPoints.size());//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for (unsigned int i = 0; i < PlentyOfPoints.size(); i++)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        {//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            points_.at(i) = PlentyOfPoints.at(i); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        }//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    }
-    virtual bool Check_for_cycle() { return ((Get_point(0).Get_X() == Get_point(Get_size() - 1).Get_X()) && (Get_point(0).Get_Y() == Get_point(Get_size() - 1).Get_Y())); }
-    //true - yes   false - no
-    virtual bool Check_for_convexity()
-    {
-        try
-        {
-            if (!(Check_for_cycle()))
-            {
-                throw exception("Sorry, but this polyline not cycle!");
-            }
-            int X1, X2, Y1, Y2, X, Y;
+    void SetFigure(const vector <CPoint>& PlentyOfPoints) { points_ = PlentyOfPoints; }
 
+    bool Check_for_cycle() { return ((Get_point(0).Get_X() == Get_point(Get_size() - 1).Get_X()) && (Get_point(0).Get_Y() == Get_point(Get_size() - 1).Get_Y())); }
+    //true - yes   false - no
+    bool Check_for_convexity()
+    {
+            if (!(Check_for_cycle()))
+                throw exception("Sorry, but this polyline not cycle!");
+
+            int X1, X2, Y1, Y2, X, Y;
             int help_turn = 0;
             int count = 0 - sides_.size();
+
             for (unsigned int i = 0; i < sides_.size() - 1; i++)
             {
                 X1 = points_.at(i).Get_X();      Y1 = points_.at(i).Get_Y();      //мы берем координаты у точек
@@ -201,17 +186,9 @@ public:
             }
 
             return (count < 0);
-
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-            return true;
-        }
-
     }
     //false - ok     true - не выпуклый или не замкнутый 
-    virtual bool Check_for_ideal()
+    bool Check_for_ideal()
     {
         for (unsigned int i = 0; i < sides_.size() - 1; i++)
         {
@@ -220,6 +197,11 @@ public:
         return true;
     }
     //true - yes     false - no
+
+    double Find_side(CPoint first, CPoint second)
+    { return sqrt((second.Get_X() - first.Get_X()) ^ 2 + (second.Get_Y() - first.Get_X())^2); }
+    double Find_k(CPoint first, CPoint second)
+    { return ((second.Get_Y() - first.Get_Y()) / (second.Get_X() - first.Get_X())); }
 
     virtual double Find_S()
     {
@@ -258,9 +240,9 @@ class CPolyLine : public CFigure // ломаная
 private:
 public:
     CPolyLine() {}
-    CPolyLine(vector <CPoint> PlentyOfPoints) { SetPolyLine(PlentyOfPoints); }
+    CPolyLine(const vector <CPoint>& PlentyOfPoints) { SetPolyLine(PlentyOfPoints); }
 
-    void SetPolyLine(vector <CPoint> PlentyOfPoints)
+    void SetPolyLine(const vector <CPoint>& PlentyOfPoints)
     {
         SetFigure(PlentyOfPoints);
         cout << "P = " << Find_P() << " and  S = " << Find_S(0) << endl;
@@ -272,7 +254,7 @@ public:
             Get_point(i).GetPoint();
     }
 
-    const char* Find_S(int) { return "Невероятно! Путем своих усилий вы достигли ничего! Ваш прогресс вам аплодирует!"; }
+    const char* Find_S(const int&) { return "Невероятно! Путем своих усилий вы достигли ничего! Ваш прогресс вам аплодирует!"; }
 
     ~CPolyLine() { Get_All_points().clear(); }
 };
@@ -280,27 +262,17 @@ class Ccycle_polyline : public CFigure // замкнутая ломаная
 {
 private:
 public:
-
-
     Ccycle_polyline() {}
-    Ccycle_polyline(vector <CPoint> PlentyOfPoints)
+    Ccycle_polyline(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (!(Check_for_cycle()))
-            {
-                throw exception("Sorry, but this polyline not cycle");
-            }
-            SetCyclePolyline(PlentyOfPoints);
-            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-        }
+        if (!(Check_for_cycle()))
+            throw exception("Sorry, but this polyline not cycle");
+   
+        SetCyclePolyline(PlentyOfPoints);
+        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
 
-    void SetCyclePolyline(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void SetCyclePolyline(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetCyclePolyLine()
     {
         for (int i = 0; i < Get_size(); i++)
@@ -318,23 +290,16 @@ class Cpolygon : public CFigure // многоугольник выпуклый
 private:
 public:
     Cpolygon() {}
-    Cpolygon(vector <CPoint> PlentyOfPoints)
+    Cpolygon(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (Check_for_convexity())
-            {
-                throw exception("Sorry, but it's not a convexity polygon");
-            }
-            SetPolygon(PlentyOfPoints);
-            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-        }
+        if (Check_for_convexity())
+            throw exception("Sorry, but it's not a convexity polygon");
+
+        SetPolygon(PlentyOfPoints);
+        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
-    void SetPolygon(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+
+    void SetPolygon(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetPolygon()
     {
         for (int i = 0; i < Get_size(); i++)
@@ -352,58 +317,34 @@ class Ctriangle : public Cpolygon// треугольник
 private:
 public:
     Ctriangle() {}
-    Ctriangle(vector <CPoint> PlentyOfPoints)
+    Ctriangle(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (Check_for_convexity())
-            {
-                throw exception("Sorry, but it's not a convexity triangle");
-            }
-            SetPolygon(PlentyOfPoints);
-            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-            if (Check_for_real_triangle())
-            {
-                cout << "За вами кто-то следит....." << endl;
-            }
-            else
-            {
-                cout << "Нашим рабам не удалось получить идеально треугольную пирамиду - нужно больше золота. Народ любит вас, сир!" << endl;
-            }
+        if (Check_for_convexity())
+            throw exception("Sorry, but it's not a convexity triangle");
+        if (!(Check_for_real_triangle()))
+            throw exception("Нашим рабам не удалось получить идеально треугольную пирамиду - нужно больше золота. Народ любит вас, сир!");
 
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-        }
+        SetPolygon(PlentyOfPoints);
+        cout << "За вами кто-то следит....." << endl;
+        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
-    void SetTriangle(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void SetTriangle(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetTriangle()
     {
         for (int i = 0; i < 3; i++)
             Get_point(i).GetPoint();
     }
-
+    
 
 
     bool Check_for_real_triangle() //каждая из сторон треугольника должна быть меньше, чем сумма двух других
     {
-
-        return((sqrt(((Get_side(0).Get_X() - Get_side(2).Get_X()) * (Get_side(0).Get_X() - Get_side(2).Get_X())) + ((Get_side(0).Get_Y() - Get_side(2).Get_Y()) * (Get_side(0).Get_Y() - Get_side(2).Get_Y())))
-            < (sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y())))
-                + sqrt(((Get_side(2).Get_X() - Get_side(1).Get_X()) * (Get_side(2).Get_X() - Get_side(1).Get_X())) + ((Get_side(2).Get_Y() - Get_side(1).Get_Y()) * (Get_side(2).Get_Y() - Get_side(1).Get_Y())))))
-
-
-            || (sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y())))
-                < (sqrt(((Get_side(2).Get_X() - Get_side(1).Get_X()) * (Get_side(2).Get_X() - Get_side(1).Get_X())) + ((Get_side(2).Get_Y() - Get_side(1).Get_Y()) * (Get_side(2).Get_Y() - Get_side(1).Get_Y())))
-                    + sqrt(((Get_side(0).Get_X() - Get_side(2).Get_X()) * (Get_side(0).Get_X() - Get_side(2).Get_X())) + ((Get_side(0).Get_Y() - Get_side(2).Get_Y()) * (Get_side(0).Get_Y() - Get_side(2).Get_Y())))))
-
-
-            || (sqrt(((Get_side(2).Get_X() - Get_side(1).Get_X()) * (Get_side(2).Get_X() - Get_side(1).Get_X())) + ((Get_side(2).Get_Y() - Get_side(1).Get_Y()) * (Get_side(2).Get_Y() - Get_side(1).Get_Y())))
-                < (sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y())))
-                    + sqrt(((Get_side(0).Get_X() - Get_side(2).Get_X()) * (Get_side(0).Get_X() - Get_side(2).Get_X())) + ((Get_side(0).Get_Y() - Get_side(2).Get_Y()) * (Get_side(0).Get_Y() - Get_side(2).Get_Y()))))));
-
+        return(
+               (Find_side(Get_point(0), Get_point(1)) < (Find_side(Get_point(1), Get_point(2)) + Find_side(Get_point(2), Get_point(0))))
+            && (Find_side(Get_point(1), Get_point(2)) < (Find_side(Get_point(0), Get_point(1)) + Find_side(Get_point(2), Get_point(0))))
+            && (Find_side(Get_point(2), Get_point(0)) < (Find_side(Get_point(0), Get_point(1)) + Find_side(Get_point(1), Get_point(2)))));
     }
+
     ~Ctriangle()
     {
         Get_All_points().clear();
@@ -416,51 +357,34 @@ private:
 public:
     // (можно еще и на 90)
     Ctrapezoid() {}
-    Ctrapezoid(vector <CPoint> PlentyOfPoints)
+    Ctrapezoid(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (Check_for_convexity())
-            {
-                throw exception("Мир и ровные пацанчики спасены, ведь вы предотвратили рождение ТРАПА!");
-            }
-            if (!(Check_for_real_trapezoid()))
-            {
-                throw exception("Мир и ровные пацанчики спасены, ведь вам показалось, что это ТРАП");
-            }
-            SetTrapezoid(PlentyOfPoints);
-            cout << "P = " << Find_P() << "  and  S = " << Find_S() << endl;
-        }
-        catch (exception& ex) { cout << ex.what() << endl; }
+        if (Check_for_convexity())
+            throw exception("Мир и ровные пацанчики спасены, ведь вы предотвратили рождение ТРАПА!");
+        if (!(Check_for_real_trapezoid()))
+            throw exception("Мир и ровные пацанчики спасены, ведь вам показалось, что это ТРАП");
+
+        SetTrapezoid(PlentyOfPoints);
+        cout << "P = " << Find_P() << "  and  S = " << Find_S() << endl;
     }
 
     bool Check_for_real_trapezoid()
     {
-        if (((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())
-            == (Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())
-            || (Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X())
-            == (Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X()))
-            && ((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())
-                != (Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X())
-                && (Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())
-                != (Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X())))
-        {
-            return true;
-        }
-        else return false;
+        return(
+               ((Find_k(Get_point(0), Get_point(1)) == Find_k(Get_point(2), Get_point(3)))
+            && (Find_k(Get_point(1), Get_point(2)) != Find_k(Get_point(3), Get_point(0))))
+        ||
+               ((Find_k(Get_point(1), Get_point(2)) == Find_k(Get_point(3), Get_point(0)))
+            && (Find_k(Get_point(0), Get_point(1)) != Find_k(Get_point(2), Get_point(3)))));
     }
 
-    void SetTrapezoid(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
 
+    void SetTrapezoid(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetTrapezoid()
     {
         for (int i = 0; i < 4; i++)
-        {
             Get_point(i).GetPoint();
-        }
     }
-
-
 
     ~Ctrapezoid()
     {
@@ -473,29 +397,18 @@ class Cclear_polygon : public Cpolygon // правильный многоуго�
 private:
 public:
     Cclear_polygon() {}
-    Cclear_polygon(vector <CPoint> PlentyOfPoints)
+    Cclear_polygon(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (Check_for_convexity())
-            {
-                throw exception("Sorry, but it's not a convexity polygon");
-            }
-            if (!(Check_for_ideal()))
-            {
-                throw exception("Вся симметричность и справедливость всего мироздания, в котором мы так преисполнились, впрочем как и адекватность, безвозвратно утеряна....");
-            }
-            SetClearPolygon(PlentyOfPoints);
-            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-        }
+        if (Check_for_convexity())
+            throw exception("Sorry, but it's not a convexity polygon");
+        if (!(Check_for_ideal()))
+            throw exception("Вся симметричность и справедливость всего мироздания, в котором мы так преисполнились, впрочем как и адекватность, безвозвратно утеряна....");
 
+        SetClearPolygon(PlentyOfPoints);
+        cout << "P = " << Find_P() << " and  S = " << this->Find_S() << endl;
     }
 
-    void SetClearPolygon(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void SetClearPolygon(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     /*
     void SetClearPolygon(vector <CPoint> PlentyOfPoints) // "хорошее" построение многоугольника
     {
@@ -515,6 +428,9 @@ public:
             Get_point(i).GetPoint();
     }
 
+    double Find_S()
+    { return (Find_side(Get_point(0), Get_point(1)) * Get_All_points().size()); }
+
     ~Cclear_polygon()
     {
         Get_All_points().clear();
@@ -526,28 +442,18 @@ class Cparallelogram : public Cpolygon
 private:
 public:
     Cparallelogram() {}
-    Cparallelogram(vector <CPoint> PlentyOfPoints)
+    Cparallelogram(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (Check_for_convexity())
-            {
-                throw exception("Sorry, but it's not a convexity polygon");
-            }
-            if (!(Check_for_real_parallelogram()))
-            {
-                throw exception("Жаль, но нам не удалось закинуться ПАРОй ГРАМм кокоса(");
-            }
-            SetParallelogram(PlentyOfPoints);
-            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-        }
+        if (Check_for_convexity())
+            throw exception("Sorry, but it's not a convexity polygon");
+        if (!(Check_for_real_parallelogram()))
+            throw exception("Жаль, но нам не удалось закинуться ПАРОй ГРАМм кокоса(");
+
+        SetParallelogram(PlentyOfPoints);
+        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
 
-    void SetParallelogram(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void SetParallelogram(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetParallelogram()
     {
         for (int i = 0; i < Get_size(); i++)
@@ -556,10 +462,9 @@ public:
 
     bool Check_for_real_parallelogram()
     {
-        return (((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())
-            == (Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())
-            && (Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X())
-            == (Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X())));
+        return(
+               ((Find_k(Get_point(0), Get_point(1)) == Find_k(Get_point(2), Get_point(3))) // попарная ||
+             && (Find_k(Get_point(1), Get_point(2)) == Find_k(Get_point(3), Get_point(0)))));
     }
     ~Cparallelogram()
     {
@@ -572,28 +477,18 @@ class CRhombus : public Cparallelogram
 private:
 public:
     CRhombus() {}
-    CRhombus(vector <CPoint> PlentyOfPoints)
+    CRhombus(const vector <CPoint>& PlentyOfPoints)
     {
-        try
-        {
-            if (Check_for_convexity())
-            {
-                throw exception("Sorry, but it's not a convexity polygon");
-            }
-            if (!(Check_for_real_rhombus))
-            {
-                throw exception("Константин Воронин-в-попе-макаронин не создал ромб: в попе тромб...");
-            }
-            SetParallelogram(PlentyOfPoints);
-            cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
-        }
-        catch (exception& ex)
-        {
-            cout << ex.what() << endl;
-        }
+        if (Check_for_convexity())
+            throw exception("Sorry, but it's not a convexity polygon");
+        if (!(Check_for_real_rhombus))
+            throw exception("Константин Воронин-в-попе-макаронин не создал ромб: в попе тромб...");
+
+        SetParallelogram(PlentyOfPoints);
+        cout << "P = " << Find_P() << " and  S = " << Find_S() << endl;
     }
 
-    void SetRhombus(vector <CPoint> PlentyOfPoints) { SetFigure(PlentyOfPoints); }
+    void SetRhombus(const vector <CPoint>& PlentyOfPoints) { SetFigure(PlentyOfPoints); }
     void GetRhombus()
     {
         for (int i = 0; i < Get_size(); i++)
@@ -602,19 +497,12 @@ public:
 
     bool Check_for_real_rhombus()
     {
-        return ((( ((Get_point(1).Get_Y() - Get_point(0).Get_Y()) / (Get_point(1).Get_X() - Get_point(0).Get_X())) //попарная параллельность
-            == ((Get_point(3).Get_Y() - Get_point(2).Get_Y()) / (Get_point(3).Get_X() - Get_point(2).Get_X())))
-            && (((Get_point(2).Get_Y() - Get_point(1).Get_Y()) / (Get_point(2).Get_X() - Get_point(1).Get_X()))
-            == ((Get_point(0).Get_Y() - Get_point(3).Get_Y()) / (Get_point(0).Get_X() - Get_point(3).Get_X()))))
-
-               && (((sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y()))))
-                == (sqrt(((Get_side(2).Get_X() - Get_side(1).Get_X()) * (Get_side(2).Get_X() - Get_side(1).Get_X())) + ((Get_side(2).Get_Y() - Get_side(1).Get_Y()) * (Get_side(2).Get_Y() - Get_side(1).Get_Y())))))
-               && ((sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y()))))
-                == (sqrt(((Get_side(3).Get_X() - Get_side(2).Get_X()) * (Get_side(3).Get_X() - Get_side(2).Get_X())) + ((Get_side(3).Get_Y() - Get_side(2).Get_Y()) * (Get_side(3).Get_Y() - Get_side(2).Get_Y())))))
-               && ((sqrt(((Get_side(1).Get_X() - Get_side(0).Get_X()) * (Get_side(1).Get_X() - Get_side(0).Get_X())) + ((Get_side(1).Get_Y() - Get_side(0).Get_Y()) * (Get_side(1).Get_Y() - Get_side(0).Get_Y()))))
-                == (sqrt(((Get_side(0).Get_X() - Get_side(3).Get_X()) * (Get_side(0).Get_X() - Get_side(3).Get_X())) + ((Get_side(0).Get_Y() - Get_side(3).Get_Y()) * (Get_side(0).Get_Y() - Get_side(3).Get_Y())))))));
+        return(
+            (Check_for_real_parallelogram) && // ||and||
+            ((Find_side(Get_point(0), Get_point(1)) == Find_side(Get_point(1), Get_point(2)))
+                && (Find_side(Get_point(0), Get_point(1)) == Find_side(Get_point(2), Get_point(3)))
+                && (Find_side(Get_point(0), Get_point(1)) == Find_side(Get_point(3), Get_point(0)))));
     }               // а тут 1 сторона должна равняться 2, 3 и 4 одновременно
-
 
     ~CRhombus()
     {
@@ -909,4 +797,4 @@ int main()
 
     system("pause");
     return 0;
-}
+} 
