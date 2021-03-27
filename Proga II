@@ -7,7 +7,9 @@ using namespace std;
 class CPolynom
 {
 private:
+protected:
 	int extent_ = 0;
+	vector <int> extentes_;
 	vector <int> coefficents_;
 public:
 	CPolynom() { /*SetPolynom(0);*/ }
@@ -50,8 +52,16 @@ public:
 
 const CPolynom& operator+ (const CPolynom& polynom) { return polynom; }
 CPolynom operator- (const CPolynom& polynom)
+{
+	for (int i = 0; i < polynom.coefficents_.size(); i++)
+		coefficents_[i] = (-1 * coefficents_[i]);
+	return polynom;
+}
 
+bool operator== (const CPolynom& first, const CPolynom& second)
+{
 
+}
 
 
 vector <int> AskForCreatePolynom(vector <int> PlentyOfNumbers, char* polynom_string)
@@ -73,7 +83,7 @@ int main()
 
 	cout << "Enter your polynom: ";
 	gets(polynom);
-	
+
 
 	cout << polynom;
 	return 0;
@@ -81,4 +91,4 @@ int main()
 
 //    5 * x^2 + 6 * x - 100
 //    5*x^2 + 6*x - 100
-//    5x^2 + 6x - 100}
+//    5x^2 + 6x - 100
