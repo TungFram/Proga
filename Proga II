@@ -2,7 +2,231 @@
 #include <vector>
 #include <cstdio>
 #include <cctype>
+using #include <iostream>
+#include <vector>
+#include <cstdio>
+#include <cctype>
 using namespace std;
+
+
+class CPolynom
+{
+private:
+	vector <double> extents_;
+	vector <double> coefficents_;
+public:
+	CPolynom() { /*SetPolynom(0);*/ }
+	CPolynom(vector <int> PlentyOfNumbers) { SetPolynom(PlentyOfNumbers); }
+
+	void SetPolynom(vector <int> PlentyOfNumbers)
+	{
+		for (unsigned int i = 0; i < PlentyOfNumbers.size(); i++)
+		{
+			coefficents_[i] = PlentyOfNumbers[i];
+		}
+	}
+	void GetPolynom() { cout << *this; }
+	
+	void Reserve_All_Polynom(int i) { coefficents_.resize(i); extents_.resize(i); }
+
+	CPolynom operator= (const CPolynom& another)
+	{
+		this->coefficents_ = another.coefficents_;
+		this->extents_ = another.extents_;
+		return *this;
+	}
+
+	CPolynom& operator-()
+	{
+		for (unsigned int i = 0; i < this->coefficents_.size(); i++)
+			coefficents_[i] = (coefficents_[i] * -1);
+		return *this;
+	}
+
+	CPolynom& operator+ () { return *this; }
+	CPolynom& operator/ (int den)
+	{
+		for (int i = 0; i < coefficents_.size(); ++i)
+			coefficents_[i] = coefficents_[i] / den;
+		return *this;
+	}
+	CPolynom& operator* (int mult)
+	{
+		for (int i = 0; i < coefficents_.size(); ++i)
+			coefficents_[i] *= mult;
+		return *this;
+	}
+
+	bool operator== (const CPolynom& another)
+	{
+		return (this->coefficents_ == another.coefficents_
+			&& this->extents_ == another.extents_);
+	}
+	bool operator!= (const CPolynom& another)
+	{
+		return !(operator==(another));
+	}
+
+	CPolynom operator+= (const CPolynom& another)
+	{
+		for (int i = 0; coefficents_.size(); ++i)
+			coefficents_[i] += another.coefficents_[i];
+	}
+	CPolynom operator-= (const CPolynom& another)
+	{
+		for (int i = 0; coefficents_.size(); ++i)
+			coefficents_[i] -= another.coefficents_[i];
+	}
+
+	CPolynom operator*= (const CPolynom& another)
+	{
+		for (unsigned int i = 0; i < coefficents_.size(); ++i)
+			coefficents_[i] *= another.coefficents_[i];
+	}
+	CPolynom operator/= (const CPolynom& another)
+	{
+		for (unsigned int i = 0; i < coefficents_.size(); ++i)
+			coefficents_[i] /= another.coefficents_[i];
+	}
+
+	double& operator[] (int i) { return coefficents_[i]; }
+
+
+
+	friend ostream& operator<< (ostream& stream, CPolynom& polynom);
+	friend istream& operator>> (istream& stream, CPolynom& polynom);
+	friend CPolynom operator+ (const CPolynom& lhs, const CPolynom& rhs);
+	friend CPolynom operator- (const CPolynom& lhs, const CPolynom& rhs);
+	friend CPolynom operator* (const CPolynom& lhs, const CPolynom& rhs);
+	friend CPolynom operator/ (const CPolynom& lhs, const CPolynom& rhs);
+	~CPolynom() { coefficents_.clear();  extents_.clear(); }
+};
+
+int max(int a, int b) { return (a > b) ? a : b; }
+
+	CPolynom operator+ (const CPolynom& lhs, const CPolynom& rhs)
+	{
+		CPolynom that;
+		that.Reserve_All_Polynom(max(lhs.coefficents_.size(), rhs.coefficents_.size()));
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
+			that.extents_ = lhs.extents_;
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
+			that.extents_ = rhs.extents_;
+
+		for (unsigned int i = 0; i < that.coefficents_.size(); ++i)
+			that.coefficents_[i] = lhs.coefficents_[i] + lhs.coefficents_[i];
+		return that;
+	}
+	CPolynom operator- (const CPolynom& lhs, const CPolynom& rhs)
+	{
+		CPolynom that;
+		that.Reserve_All_Polynom(max(lhs.coefficents_.size(), rhs.coefficents_.size()));
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
+			that.extents_ = lhs.extents_;
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
+			that.extents_ = rhs.extents_;
+
+		for (unsigned int i = 0; i < that.coefficents_.size(); ++i)
+			that.coefficents_[i] = lhs.coefficents_[i] - lhs.coefficents_[i];
+		return that;
+	}
+	CPolynom operator* (const CPolynom& lhs, const CPolynom& rhs)
+	{
+		CPolynom that;
+		that.Reserve_All_Polynom(max(lhs.coefficents_.size(), rhs.coefficents_.size()));
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
+			that.extents_ = lhs.extents_;
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
+			that.extents_ = rhs.extents_;
+
+		for (unsigned int i = 0; i < that.coefficents_.size(); ++i)
+			that.coefficents_[i] = lhs.coefficents_[i] * lhs.coefficents_[i];
+		return that;
+	}
+	CPolynom operator/ (const CPolynom& lhs, const CPolynom& rhs)
+	{
+		CPolynom that;
+		that.Reserve_All_Polynom(max(lhs.coefficents_.size(), rhs.coefficents_.size()));
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
+			that.extents_ = lhs.extents_;
+		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
+			that.extents_ = rhs.extents_;
+
+		for (unsigned int i = 0; i < that.coefficents_.size(); ++i)
+			that.coefficents_[i] = lhs.coefficents_[i] / lhs.coefficents_[i];
+		return that;
+	}
+
+ostream& operator<< (ostream& stream, CPolynom& polynom)
+{
+	for (unsigned int i = polynom.coefficents_.size() - 1; i > 0; --i)
+	{
+		cout << "(" << polynom.coefficents_[i] << "x^" << polynom.extents_[i] << ") + ";
+	}
+	cout << "(" << polynom.coefficents_[0] << "x^" << polynom.extents_[0] << ")";
+	return stream;
+}
+istream& operator>> (istream& stream, CPolynom& polynom)
+{
+	int index;
+	int extent;
+	int maxExtent;
+	cin >> maxExtent;
+	/*if(!isdigit(maxExtent))
+	{
+		throw exception("Error: invalid reading max!");
+	}*/
+	polynom.Reserve_All_Polynom(maxExtent);
+	for (int i = 0; i < maxExtent; i++)
+	{
+		cin >> extent >> index;
+		/*if ((!isdigit(extent)) || (!(isdigit(index))))
+		{
+			throw exception("Error: invalid reading!");
+		}*/
+		polynom.coefficents_[extent - 1] = index;
+		polynom.extents_[extent - 1] = extent;
+	}
+	return stream;
+}
+
+int main()
+{
+	CPolynom Polynom;
+	cout << "Enter your polynom: ";
+	try { cin >> Polynom; }
+	catch (exception& ex) { cout << ex.what(); }
+	cout << Polynom;
+
+	cout << endl;
+	cout << "+ " << +Polynom << endl;
+	cout << "- ";
+	cout << -Polynom << endl;
+
+	int num;
+	cout << "/ on num " << endl;
+	cin >> num;
+	cout << endl <<  (Polynom / num) << endl;
+	cout << "* on num " << endl;
+	cin >> num;
+	cout << endl <<  (Polynom * num) << endl;
+
+	cout << "Enter a and b: " << endl;
+	CPolynom a;
+	CPolynom b;
+	cin >> a >> b;
+	cout << endl << endl << "==|!= " << (a == b) << "|" << (a != b) << endl;
+	cout << "first = a+b:  " << endl; Polynom = a + b; cout << Polynom << endl;
+	cout << "first = a-b:  " << endl; Polynom = a - b; cout << Polynom << endl;
+	cout << "first = a/b:  " << endl; Polynom = a / b; cout << Polynom << endl;
+	cout << "first = a*b:  " << endl; Polynom = a * b; cout << Polynom << endl;
+
+	return 0;
+}
+
+//    5 * x^2 + 6 * x - 100
+//    5*x^2 + 6*x - 100
+//    5x^2 + 6x - 100} std;
 
 
 class CPolynom
