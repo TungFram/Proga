@@ -69,7 +69,9 @@ template<class Tvalue> bool greater(const Tvalue& left, const Tvalue& right) { r
 template<class TForwardIterator, typename TBinaryPredicate>
 bool is_sorted(TForwardIterator begin, TForwardIterator end, TBinaryPredicate predicate = ::greater)
 {
-    for (auto Iterator = begin; Iterator != prev(end, 2); ++Iterator)
+    if (begin == end) { return true; }
+    for (auto Iterator = begin; Iterator != prev(end, 1); ++Iterator)
+
         if (predicate(*Iterator, *next(Iterator, 1)))
             continue;
         else 
@@ -112,9 +114,12 @@ TInputIterator find_not(TInputIterator begin, TInputIterator end, Tvalue value =
 template<class TBidirectionalIterator = std::vector<int>::const_reverse_iterator, typename Tvalue>
 TBidirectionalIterator find_backward(TBidirectionalIterator begin, TBidirectionalIterator end, Tvalue value = 0)
 {
+    if (begin == end) { return end; }
     for (auto Iterator = prev(end, 1); Iterator != begin; --Iterator)
         if (*Iterator == value)
             return Iterator;
+    if (*begin == value)
+        return begin;
     return end;
 }
 
@@ -125,14 +130,22 @@ TBidirectionalIterator find_backward(TBidirectionalIterator begin, TBidirectiona
 template<class TBidirectionalIterator>
 bool is_palindrome(TBidirectionalIterator begin, TBidirectionalIterator end)
 {
-    int lenght = end - begin;
-    for (auto left = begin, right = prev(end, 1); left != prev(end,lenght/2); left++, right--)
+    if (begin == end) { return true; }
+    auto left = begin;
+    auto right = prev(end, 1);
+    while (true)
+    {//cравнение с двух сторон аккуратненько
         if (*left != *right)
             return false;
-    return true;
+
+        if(left == right)
+            return true;
+        ++left;
+        if (left == right)
+            return true;
+        --right;
+    }
 }
-
-
 
 
 /*******************************************************************************************************************************************/
@@ -140,7 +153,7 @@ int main()
 {
     vector<int> v{ 5, 5, 5, 5, 7, 8 };
     list<int> li{ 1, 2, 5, 0, 0, 0 };
-    vector<int> palindrome{ 1, 3, 5, 5, 3, 1 };
+    list<int> palindrome{ 1, 3, 5, 5, 3, 1 };
     vector<int> reverse{ 1, 2, 100500, 4, 4, 4, 4, 4, };
 
     cout << "all_of (% 2) with vector: " << ::all_of(v.begin(), v.end(), compare) << endl;
@@ -151,8 +164,8 @@ int main()
     cout << "is_sorted (greater) with vector: " << ::is_sorted(v.begin(), v.end(), ::greater<int>) << endl;
     cout << "is_partitioned (==0) with list: " << ::is_partitioned(li.begin(), li.end(), isnt_0<int>) << endl; 
     cout << "find_not(5) with vector: " << *(::find_not(v.begin(), v.end(), 5)) << endl;
-    cout << "find_backward(2) with matrix: " << *(::find_backward(reverse.begin(), reverse.end(), 2)) << endl;
-    cout << "is_palindrome whti palindrome: " << ::is_palindrome(palindrome.begin(), palindrome.end()) << endl;
+    cout << "find_backward(2) with reverse: " << *(::find_backward(reverse.begin(), reverse.end(), 2)) << endl;
+    cout << "is_palindrome with the palindrome: " << is_palindrome(palindrome.begin(), palindrome.end()) << endl;
     return 0;
 }
 
