@@ -12,18 +12,24 @@ private:
 	vector <double> coefficents_;
 public:
 	CPolynom() { /*SetPolynom(0);*/ }
-	CPolynom(vector <int>& PlentyOfNumbers) { SetPolynom(PlentyOfNumbers); }
-
-	void SetPolynom(vector <int>& PlentyOfNumbers)
+	explicit CPolynom(const vector <int>& PlentyOfNumbers) { SetPolynom(PlentyOfNumbers); }
+	explicit CPolynom(const unsigned int& size)
 	{
-		for (unsigned int i = 0; i < PlentyOfNumbers.size(); i++)
+		this->coefficents_.resize(size);
+		for (auto i : this->coefficents_)
+			i = 0;
+	}
+
+	void SetPolynom(const vector <int>& PlentyOfNumbers)
+	{
+		for (unsigned int i = 0; i < PlentyOfNumbers.size(); ++i)
 		{
 			coefficents_[i] = PlentyOfNumbers[i];
 		}
 	}
 	void GetPolynom() { cout << *this; }
 	
-	CPolynom operator= (const CPolynom& another)
+	CPolynom& operator= (const CPolynom& another)
 	{
 		this->coefficents_ = another.coefficents_;
 		return *this;
@@ -32,7 +38,7 @@ public:
 	CPolynom operator-()
 	{
 		CPolynom that = *this;
-		for (unsigned int i = 0; i < that.coefficents_.size(); i++)
+		for (unsigned int i = 0; i < that.coefficents_.size(); ++i)
 			that.coefficents_[i] = (that.coefficents_[i] * -1);
 		return that;
 	}
@@ -60,7 +66,7 @@ public:
 	{
 		return !(operator==(another));
 	}
-	//return!!! and size
+	
 	CPolynom& operator+= (const CPolynom& another)
 	{
 		if (another.coefficents_.size() > this->coefficents_.size())
@@ -70,7 +76,7 @@ public:
 			coefficents_[i] += another.coefficents_[i];
 		return *this;		
 	}
-	CPolynom operator-= (const CPolynom& another)
+	CPolynom& operator-= (const CPolynom& another)
 	{
 		if (another.coefficents_.size() > this->coefficents_.size())
 			this->coefficents_.resize(another.coefficents_.size());
@@ -79,14 +85,14 @@ public:
 			coefficents_[i] -= another.coefficents_[i];
 		return *this;
 	}
-	CPolynom operator*= (const CPolynom& another)
+	CPolynom& operator*= (const CPolynom& another)
 	{
-		if (another.coefficents_.size() > this->coefficents_.size())
-			this->coefficents_.resize(another.coefficents_.size());
+		CPolynom that(this->coefficents_.size() + another.coefficents_.size());
 
-		for (int i = 0; another.coefficents_.size(); ++i)
-			coefficents_[i] *= another.coefficents_[i];
-		return *this;
+		for (unsigned int this_counter = 0; this_counter < this->coefficents_.size(); ++this_counter)
+			for (unsigned int another_counter = 0; another_counter < another.coefficents_.size(); ++another_counter)
+				that.coefficents_[this_counter + another_counter] += this->coefficents_[this_counter] * another.coefficents_[another_counter];
+		return that;
 	}
 
 	double& operator[] (int i) { return coefficents_[i]; }
@@ -94,58 +100,49 @@ public:
 
 	friend ostream& operator<< (ostream& stream, const CPolynom& polynom);
 	friend istream& operator>> (istream& stream, CPolynom& polynom);
-	friend CPolynom operator+ (CPolynom& lhs, CPolynom& rhs);
-	friend CPolynom operator- (CPolynom& lhs, CPolynom& rhs);
-	friend CPolynom operator* (CPolynom& lhs, CPolynom& rhs);
+	friend CPolynom& operator+ (const CPolynom& lhs, const CPolynom& rhs);
+	friend CPolynom& operator- (const CPolynom& lhs, const CPolynom& rhs);
+	friend CPolynom& operator* (const CPolynom& lhs, const CPolynom& rhs);
 	~CPolynom() { coefficents_.clear(); }
 };
 
 //через @=
-	CPolynom operator+ (CPolynom& lhs, CPolynom& rhs)
+	CPolynom& operator+ (const CPolynom& lhs, const CPolynom& rhs)
 	{
-		CPolynom that;
-		that.coefficents_.resize(max(lhs.coefficents_.size(), rhs.coefficents_.size()));
-		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
-			rhs.coefficents_.resize(lhs.coefficents_.size());
-		if(max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
-			lhs.coefficents_.resize(rhs.coefficents_.size());
-		for (unsigned int i = 0; i < min(lhs.coefficents_.size(), rhs.coefficents_.size()); ++i)
-		{
-			that.coefficents_[i] += lhs.coefficents_[i];
+		/*
+		copy lhs
+		+= rhs
+		*/
+		CPolynom that = lhs;
+		if (rhs.coefficents_.size() > that.coefficents_.size())
+			that.coefficents_.resize(rhs.coefficents_.size());
+
+		for (unsigned int i = 0; i < rhs.coefficents_.size(); ++i)
 			that.coefficents_[i] += rhs.coefficents_[i];
-		}
 		return that;
 	}
-	CPolynom operator- (CPolynom& lhs, CPolynom& rhs)
+	CPolynom& operator- (const CPolynom& lhs, const CPolynom& rhs)
 	{
-		CPolynom that;
-		that.coefficents_.resize(max(lhs.coefficents_.size(), rhs.coefficents_.size()));
-		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
-			rhs.coefficents_.resize(lhs.coefficents_.size());
-		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
-			lhs.coefficents_.resize(rhs.coefficents_.size());
+		CPolynom that = lhs;
+		if (rhs.coefficents_.size() > that.coefficents_.size())
+			that.coefficents_.resize(rhs.coefficents_.size());
 
-		for (unsigned int i = 0; i < min(lhs.coefficents_.size(), rhs.coefficents_.size()); ++i)
-			that.coefficents_[i] = lhs.coefficents_[i] - rhs.coefficents_[i];
+		for (unsigned int i = 0; i < rhs.coefficents_.size(); ++i)
+			that.coefficents_[i] -= rhs.coefficents_[i];
 
 		return that;
 	}
-	CPolynom operator* (CPolynom& lhs, CPolynom& rhs)
+	CPolynom& operator* (const CPolynom& lhs, const CPolynom& rhs)
 	{
-		CPolynom that;
-		that.coefficents_.resize(lhs.coefficents_.size() + rhs.coefficents_.size());
-		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == lhs.coefficents_.size())
-			rhs.coefficents_.resize(lhs.coefficents_.size());
-		if (max(lhs.coefficents_.size(), rhs.coefficents_.size()) == rhs.coefficents_.size())
-			lhs.coefficents_.resize(rhs.coefficents_.size());
+		CPolynom that(lhs.coefficents_.size() + rhs.coefficents_.size());
 
-		for (unsigned int i = 0; i < lhs.coefficents_.size(); ++i)
-			for (unsigned int k = 0; k < rhs.coefficents_.size(); ++k)
+		for (unsigned int l = 0; l < lhs.coefficents_.size(); ++l)
+		{
+			for (unsigned int r = 0; r < rhs.coefficents_.size(); ++r)
 			{
-				that.coefficents_[i + k] +=
-					(lhs.coefficents_[i] *
-					rhs.coefficents_[k]);
+				that.coefficents_[l + r] += lhs.coefficents_[l] * rhs.coefficents_[r];
 			}
+		}
 		return that;
 	}
 
@@ -214,4 +211,6 @@ int main()
 
 //    5 * x^2 + 6 * x - 100
 //    5*x^2 + 6*x - 100
-//    5x^2 + 6x - 100}
+//    5x^2 + 6x - 100
+//    5x2 + 6x - 100
+//    5x2+6x-100
